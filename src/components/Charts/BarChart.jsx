@@ -25,7 +25,7 @@ const data = [
 ];
 
 const BarChart = () => (
-  <div className="bg-main h-60 lg:px-8 py-3 rounded-xl lg:w-1/2">
+  <div className="bg-main h-70 lg:px-8 py-3 rounded-xl lg:w-1/2 m-1">
     <ResponsiveBar
       data={data}
       keys={["Bilal_Travellers", "Faisal_Movers", "Daewoo", "Kohistan"]}
