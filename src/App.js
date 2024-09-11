@@ -5,6 +5,7 @@ import Layout from "./components/utils/Layout";
 import DashboardContent from "./components/dashboard/DashboardContent";
 import CompaniesPage from "./pages/CompaniesPage";
 import BusesPage from "./pages/BusesPage";
+import AdminRegistrationPage from "./pages/AdminRegistrationPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route index element={<DashboardContent />}></Route>
           <Route path="/companies" element={<CompaniesPage />}></Route>
           <Route path="/buses" element={<BusesPage/>}></Route>
+          <Route path="/newadmin" element={<AdminRegistrationPage/>}></Route>
 
         </Route>
         <Route path="/signup" element={<Signup />} />

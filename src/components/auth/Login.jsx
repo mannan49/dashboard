@@ -1,5 +1,5 @@
 import { FaBus } from "react-icons/fa";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 
 function Login() {

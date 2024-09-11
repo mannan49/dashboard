@@ -48,7 +48,7 @@ const Navbar = () => {
             <BiSolidDashboard />
             <span className="text-white hover:text-primary">Dashboard</span>
           </NavLink>
-          <NavLink to="/" className="app-nav-li">
+          <NavLink to="/newadmin" className="app-nav-li">
             <FaUserShield />
             <span className="text-white hover:text-primary">New Admin</span>
           </NavLink>
