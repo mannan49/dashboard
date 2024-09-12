@@ -53,7 +53,7 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li className="app-side-li">
-              <NavLink to="/companies" className="flex items-center gap-4">
+              <NavLink to="/payments" className="flex items-center gap-4">
                 <MdPayment />
                 <span>Payments</span>
               </NavLink>

@@ -14,7 +14,8 @@ const data = [
 ];
 
 const MyRevenueLineChart = () => (
-    <div className="bg-main h-60 lg:px-8 py-3 rounded-xl lg:w-1/2 m-1">
+    <div className="bg-main lg:h-60 lg:px-8 py-3 rounded-xl lg:w-1/2 m-1">
+     {/* <div className="">  */}
         <ResponsiveLine
             data={data}
             margin={{ top: 20, right: 20, bottom: 40, left: 40 }}
@@ -42,10 +43,6 @@ const MyRevenueLineChart = () => (
             isInteractive={false} // Disable interactions
             curve="natural" // Smooth line
         />
-        <div style={{ position: 'absolute', top: 10, left: 20 }}>
-            <p style={{ margin: 0 }}>Revenue</p>
-            <h2 style={{ margin: 0 }}>$25M</h2>
-        </div>
     </div>
 );
 
