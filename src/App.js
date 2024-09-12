@@ -8,6 +8,7 @@ import AdminRegistrationPage from "./pages/AdminRegistrationPage";
 import UserTable from "./pages/RegUserTable";
 import BusRoutes from "./pages/BusRoutes";
 import Companies from "./pages/Companies";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/newadmin" element={<AdminRegistrationPage/>}></Route>
           <Route path="/regusers" element={<UserTable/>}></Route>
           <Route path="/routes" element={<BusRoutes/>}></Route>
+          <Route path="/payments" element={<PaymentPage/>}></Route>
 
         </Route>
         <Route path="/signup" element={<Signup />} />
