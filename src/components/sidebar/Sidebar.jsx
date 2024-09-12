@@ -47,7 +47,7 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li className="app-side-li">
-              <NavLink to="/companies" className="flex items-center gap-4">
+              <NavLink to="/routes" className="flex items-center gap-4">
                 <FaRoute />
                 <span>Routes</span>
               </NavLink>

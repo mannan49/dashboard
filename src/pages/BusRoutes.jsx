@@ -29,9 +29,9 @@ const routes = [
     },
 ];
 
-const Routes = () => {
+const BusRoutes = () => {
     return (
-        <div className="p-6 bg-gray-50 min-h-screen w-full">
+        <div className="p-6 bg-main min-h-screen w-full m-5 rounded-xl">
             {/* Header Section */}
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-gray-800">Routes</h1>
@@ -76,4 +76,4 @@ const Routes = () => {
     );
 };
 
-export default Routes;
+export default BusRoutes;
