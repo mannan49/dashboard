@@ -9,6 +9,8 @@ import UserTable from "./pages/RegUserTable";
 import BusRoutes from "./pages/BusRoutes";
 import Companies from "./pages/Companies";
 import PaymentPage from "./pages/PaymentPage";
+import AddBusForm from "./pages/busCRUD/AddBusForm";
+import EditBus from "./pages/busCRUD/EditBus";
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/regusers" element={<UserTable/>}></Route>
           <Route path="/routes" element={<BusRoutes/>}></Route>
           <Route path="/payments" element={<PaymentPage/>}></Route>
+          <Route path="/add-bus" element={<AddBusForm/>}></Route>
+          <Route path="/edit-bus/:busId" element={<EditBus />} />
 
         </Route>
         <Route path="/signup" element={<Signup />} />
