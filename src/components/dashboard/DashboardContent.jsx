@@ -1,10 +1,11 @@
 import React from "react";
-// import TestInformation from "./TestInformation";
 import Card from "./Card";
 import BarChart from "../Charts/BarChart";
 import MyRevenueLineChart from "../Charts/BumpChart";
 import CompanyTable from "./TableCompanies";
+
 const MainContent = () => {
+ 
   return (
     <div className="content lg:p-4">
       <div className="m-auto lg:p-8">

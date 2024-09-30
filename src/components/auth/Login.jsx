@@ -99,15 +99,7 @@ function Login() {
               </button>
             </div>
           </div>
-          <h1 className="italic">Don't have an account yet, then :-</h1>
-          <div className="bg-primary border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-              <button className="text-main text-xl w-full" type="submit">
-              <NavLink to="/signup">
-                 Create Account
-              </NavLink>
-              </button>
-            
-          </div>
+         
         </form>
       </div>
     </div>

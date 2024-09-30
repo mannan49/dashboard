@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { apiBaseUrl } from "../components/apis/setting";
 
 const BusesPage = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const BusesPage = () => {
 
   const deleteBus = async (busId) => {
     try {
-      const response = await fetch(`http://localhost:8080/bus/${busId}`, {
+      const response = await fetch(`${apiBaseUrl}/bus/${busId}`, {
         method: "DELETE",
       });
 
@@ -66,7 +67,7 @@ const BusesPage = () => {
   // Fetching all the buses for displaying cards
   const getAllBuses = async () => {
     try {
-      const response = await fetch("http://localhost:8080/bus", {
+      const response = await fetch(`${apiBaseUrl}/bus`, {
         method: "GET", // HTTP method
         headers: {
           "Content-Type": "application/json",
@@ -123,11 +124,11 @@ const BusesPage = () => {
             <p className="text-gray-600 mb-2">Details: {bus.busDetails}</p>
             <p className="text-gray-600 mb-2">Fare: {bus.fare}</p>
             <div className="mt-4 flex justify-between">
-              <button className="app-btn text-gray-600  px-4 py-2 rounded-md flex items-center"  onClick={() => handleEditClick(bus._id)}>
+              <button className="bg-green-800 text-white  px-8 py-2 rounded-full flex items-center"  onClick={() => handleEditClick(bus._id)}>
               <FaEdit className="mr-2" />
               Edit
               </button>
-              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 flex items-center" onClick={() => handleDeleteClick(bus._id)}>
+              <button className="bg-red-700 text-white py-2 px-8 rounded-full hover:bg-red-500 flex items-center" onClick={() => handleDeleteClick(bus._id)}>
                 <FaTrashAlt className="mr-2" />
                 Delete
               </button>

@@ -28,7 +28,7 @@ export const addBus = async (busData) => {
 // api.js
 
 export const fetchBusById = async (busId) => {
-    const response = await fetch(`http://localhost:8080/bus/${busId}`);
+    const response = await fetch(`${apiBaseUrl}/bus/${busId}`);
     if (!response.ok) throw new Error('Failed to fetch bus');
     return response.json();
   };
