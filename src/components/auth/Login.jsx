@@ -1,8 +1,41 @@
+/* eslint-disable no-unused-vars */
 import { FaBus } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
+import { loginAdmin } from "../apis/AuthenticationApi";
+// import Loader from "../utils/Loader";
+import { useState } from "react";
 
 function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  const handleSubmit= async (e) => {
+    e.preventDefault();
+    const data = {
+      email: email,
+      password: password, 
+    };
+    try {
+      const result = await loginAdmin(data); // Get the result from loginUser
+
+      if (result.success) {
+        const { data } = result;
+        window.localStorage.setItem("token", data.token); // Store token
+        toast.success(data.message);
+        navigate("/");
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Login error:", error.message);
+      toast.error("Something went wrong. Please try again.");
+    } 
+  }
+  
   return (
     <div className="px-4 lg:px-0 grid grid-cols-1 md:grid-cols-2 overflow-hidden h-screen bg-[url(https://images.unsplash.com/photo-1470115636492-6d2b56f9146d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8bGlnaHQlMjBuYXR1cmV8ZW58MHx8MHx8fDA%3D)] lg:bg-none bg-main">
       <div className="hidden md:block">
@@ -16,6 +49,7 @@ function Login() {
       <div className="flex justify-center max-h-screen ">
         <form
           className="border-primary border-solid border-2 rounded-lg h-fit my-auto p-5 w-full lg:w-2/3"
+          onSubmit={handleSubmit}
         >
           <div className="flex items-center justify-center">
             <FaBus className="text-3xl text-primary mr-2" />
@@ -35,6 +69,8 @@ function Login() {
               type="email"
               id="email"
               name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter Your E-mail"
             />
@@ -49,6 +85,8 @@ function Login() {
               type="password"
               id="password"
               name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter Your Password"
             />
@@ -56,20 +94,12 @@ function Login() {
 
           <div className="mb-1">
             <div className="bg-primary border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-              <button className="text-main text-xl w-full" type="submit">
+              <button className="text-main text-xl w-full" type="submit" >
                 Log In
               </button>
             </div>
           </div>
-          <h1 className="italic">Don't have an account yet, then :-</h1>
-          <div className="bg-primary border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-              <button className="text-main text-xl w-full" type="submit">
-              <NavLink to="/signup">
-                 Create Account
-              </NavLink>
-              </button>
-            
-          </div>
+         
         </form>
       </div>
     </div>
