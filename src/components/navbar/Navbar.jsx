@@ -21,7 +21,7 @@ const Navbar = () => {
       <div className="mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center ml-2">
           <IoBus className="text-2xl lg:mt-1" />
-          <span className="text-white font-bold text-lg ml-2">Manzil</span>
+          <span className="text-white font-bold text-lg ml-2">Tap & Travel</span>
         </Link>
         <div className="lg:hidden">
           {/* Hamburger Icon */}

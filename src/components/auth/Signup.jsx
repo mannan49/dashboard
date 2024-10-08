@@ -17,7 +17,7 @@ function Signup() {
           <div className="flex items-center justify-center">
             <FaBus className="text-2xl text-primary mr-2" />
             <span className="text-primary text-2xl text-center font-bold mb-0.5">
-              Manzil
+            Tap & Travel
             </span>
           </div>
           <h2 className="text-xl italic font-bold text-center mb-0.5">
