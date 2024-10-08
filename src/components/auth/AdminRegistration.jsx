@@ -1,13 +1,66 @@
+import React, { useState } from 'react';
 import { FaBus } from "react-icons/fa";
+import toast from 'react-hot-toast';
+import { apiBaseUrl } from '../apis/setting';
+import Loader from '../utils/Loader';
 
 function AdminRegistration() {
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: 'Password123!',
+    company: '',
+    role: 'admin',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token"); // Ensure you have the token
+      const response = await fetch(`${apiBaseUrl}/admin/register`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          company: formData.company,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to register admin');
+      }
+
+      const data = await response.json();
+      toast.success('Admin registered successfully!');
+      console.log('Registered Admin:', data); 
+
+    } catch (error) {
+      toast.error(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex justify-center m-3 w-2/4">
-      <form className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-5 bg-main">
+      <form onSubmit={handleSubmit} className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-5 bg-main">
         <div className="flex items-center justify-center">
           <FaBus className="text-2xl text-primary mr-2" />
           <span className="text-primary text-2xl text-center font-bold mb-0.5">
-            Manzil
+            Tap & Travel
           </span>
         </div>
         <h2 className="text-xl italic font-bold text-center mb-0.5">
@@ -23,24 +76,26 @@ function AdminRegistration() {
             placeholder="Full Name"
             id="full-name"
             className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            name="full-name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
           />
         </div>
         <div className="mb-1 flex flex-col">
-          <label htmlFor="full-name" className="font-bold text-lg">
+          <label htmlFor="role" className="font-bold text-lg">
             Role:
           </label>
-          <select className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none" id="options" name="options">
-            <option className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none" value="option1">Admin</option>
-            <option className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none" value="option2">User</option>
+          <select 
+            className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none" 
+            id="options" 
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+          >
+            <option value="option1">Admin</option>
+            <option value="option2">User</option>
           </select>
-          {/* <input
-              type="text"
-              placeholder="Full Name"
-              id="full-name"
-              className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-              name="full-name"
-            /> */}
         </div>
 
         <div className="mb-1 flex flex-col">
@@ -54,6 +109,8 @@ function AdminRegistration() {
             name="email"
             required
             placeholder="Enter Your E-mail"
+            value={formData.email}
+            onChange={handleChange}
           />
         </div>
 
@@ -67,63 +124,35 @@ function AdminRegistration() {
             id="password"
             name="password"
             placeholder="Enter Password"
-            required
+            value={formData.password}
+            onChange={handleChange}
           />
         </div>
 
         <div className="mb-1 flex flex-col">
-          <label htmlFor="confirm-password" className="font-bold text-lg">
-            Confirm Password :
-          </label>
-          <input
-            className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            type="password"
-            name="confirm-password"
-            id="confirm-password"
-            placeholder="Confirm Password"
-          />
-        </div>
-        <div className="mb-1 flex flex-col">
-          <label htmlFor="confirm-password" className="font-bold text-lg">
+          <label htmlFor="company-name" className="font-bold text-lg">
             Company Name :
           </label>
           <input
             className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            name="Company Name"
+            name="company"
             id="company-name"
             placeholder="Company Name"
-          />
-        </div>
-        <div className="mb-1 flex flex-col">
-          <label htmlFor="confirm-password" className="font-bold text-lg">
-            Phone Number:
-          </label>
-          <input
-            className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            name="phone_number"
-            id="phone_number"
-            placeholder="Phone Number"
-          />
-        </div>
-        <div className="mb-1 flex flex-col">
-          <label htmlFor="confirm-password" className="font-bold text-lg">
-            Adress :
-          </label>
-          <input
-            className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            name="adress"
-            id="adress"
-            placeholder="Adress"
+            value={formData.company}
+            onChange={handleChange}
+            required
           />
         </div>
 
         <div>
           <div className="bg-primary my-2 border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
             <button className="text-main text-lg w-full" type="submit">
-              Register User
+              Register Company
             </button>
           </div>
         </div>
+
+        {loading && <Loader />} 
       </form>
     </div>
   );
