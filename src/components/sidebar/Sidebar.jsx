@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { VscTarget } from "react-icons/vsc";
 import { BiLogOutCircle } from "react-icons/bi";
@@ -8,9 +8,37 @@ import { FaBusAlt } from "react-icons/fa";
 import { FaUser, FaRoute } from "react-icons/fa6";
 import { MdPayment } from "react-icons/md";
 import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
+import SidebarItem from "./SideBarItem";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  let role = "";
+  const token = localStorage.getItem("token");
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    role = decodedToken.role;
+    console.log("Role", role)
+  }
+  
+
+  const commonItems = [
+    { to: "/", icon: IoMdHome, label: "Dashboard" },
+    { to: "/regusers", icon: FaUser, label: "Users" }
+    
+  ];
+
+  const adminItems = [
+    { to: "/buses", icon: FaBusAlt, label: "Buses" },
+    { to: "/payments", icon: MdPayment, label: "Payments" }
+  ];
+
+  const superAdminItems = [
+    { to: "/companies", icon: BsBuildingsFill, label: "Companies" }
+    // { to: "/routes", icon: FaRoute, label: "Routes" },
+  ];
+
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate("/login");
@@ -29,42 +57,19 @@ const Sidebar = () => {
       <div className="h-[70vh] grid grid-rows-[auto,auto]">
         <div>
           <ul className="space-y-4 w-full">
-            <li className="app-side-li">
-              <NavLink to="/" className="flex items-center gap-4">
-                <IoMdHome />
-                <span>Dashboard</span>
-              </NavLink>
-            </li>
-            <li className="app-side-li">
-              <NavLink to="/companies" className="flex items-center gap-4">
-                <BsBuildingsFill />
-                <span>Companies</span>
-              </NavLink>
-            </li>
-            <li className="app-side-li">
-              <NavLink to="/buses" className="flex items-center gap-4">
-                <FaBusAlt />
-                <span>Buses</span>
-              </NavLink>
-            </li>
-            <li className="app-side-li">
-              <NavLink to="/regusers" className="flex items-center gap-4">
-                <FaUser />
-                <span>Users</span>
-              </NavLink>
-            </li>
-            <li className="app-side-li">
-              <NavLink to="/routes" className="flex items-center gap-4">
-                <FaRoute />
-                <span>Routes</span>
-              </NavLink>
-            </li>
-            <li className="app-side-li">
-              <NavLink to="/payments" className="flex items-center gap-4">
-                <MdPayment />
-                <span>Payments</span>
-              </NavLink>
-            </li>
+          {commonItems.map((item, index) => (
+              <SidebarItem key={index} to={item.to} icon={item.icon} label={item.label} />
+            ))}
+          {role === "admin" &&
+              adminItems.map((item, index) => (
+                <SidebarItem key={index} to={item.to} icon={item.icon} label={item.label} />
+              ))}
+            
+            
+           {role === "superadmin" &&
+              superAdminItems.map((item, index) => (
+                <SidebarItem key={index} to={item.to} icon={item.icon} label={item.label} />
+              ))}
       
           </ul>
         </div>
