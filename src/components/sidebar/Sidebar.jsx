@@ -9,7 +9,7 @@ import { FaUser, FaRoute } from "react-icons/fa6";
 import { MdPayment } from "react-icons/md";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
-import SidebarItem from "./SideBarItem";
+import SidebarItem from "./SidebarItem";
 
 const Sidebar = () => {
   const navigate = useNavigate();

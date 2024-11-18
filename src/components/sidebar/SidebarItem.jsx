@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const SidebarItem = ({ to, icon: Icon, label }) => {
+const SideBarItem = ({ to, icon: Icon, label }) => {
   return (
     <li className="app-side-li">
       <NavLink to={to} className="flex items-center gap-4">
@@ -12,4 +12,4 @@ const SidebarItem = ({ to, icon: Icon, label }) => {
   );
 };
 
-export default SidebarItem;
+export default SideBarItem;

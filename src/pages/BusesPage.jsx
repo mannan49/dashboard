@@ -32,15 +32,12 @@ const BusesPage = () => {
 
 
 
-  // Edit Bus
   const handleEditClick = (busId) => {
-    // Navigate to edit page or open edit modal
      navigate(`/edit-bus/${busId}`);
     console.log("Edit bus with ID:", busId);
   };
 
 
-  // Delete Bus
   const handleDeleteClick = (busId) => {
     if (window.confirm("Are you sure you want to delete this bus?")) {
       deleteBus(busId);
@@ -64,11 +61,10 @@ const BusesPage = () => {
   };
 
 
-  // Fetching all the buses for displaying cards
   const getAllBuses = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/bus`, {
-        method: "GET", // HTTP method
+        method: "GET", 
         headers: {
           "Content-Type": "application/json",
         },
@@ -79,7 +75,7 @@ const BusesPage = () => {
       }
 
       const data = await response.json();
-      console.log("All Buses:", data); // For debugging purposes
+      console.log("All Buses:", data);
       setBuses(data);
     } catch (error) {
       console.error("Error fetching buses:", error);
@@ -91,10 +87,10 @@ const BusesPage = () => {
 
   // Add bus page 
   const handleAddBusClick = () => {
-    navigate("/add-bus"); // Navigate to the form page
+    navigate("/add-bus"); 
   };
   return (
-    <div className="content p-6 bg-main min-h-screen w-full m-5 rounded-xl">
+    <div className="content p-6 pb-16 bg-main min-h-screen w-full m-5 rounded-xl">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">Available Buses</h1>
@@ -114,15 +110,15 @@ const BusesPage = () => {
             className="bg-white rounded-lg shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl"
           >
             <p className="text-gray-600 mb-2 app-btn text-center">
-              {bus.startLocation + " to " + bus.endLocation}
+              {bus.route.startCity + " to " + bus.route.endCity}
             </p>
             <p className="text-gray-600 mb-2">{formatDate(bus.date)}</p>
             <p className="text-gray-600 mb-2 ">
               Time: {bus.departureTime + " to " + bus.arrivalTime}
             </p>
             <p className="text-gray-600 mb-2">Total Seats: {bus.busCapacity}</p>
-            <p className="text-gray-600 mb-2">Details: {bus.busDetails}</p>
-            <p className="text-gray-600 mb-2">Fare: {bus.fare}</p>
+            <p className="text-gray-600 mb-2">Details: {bus.busDetails.busNumber}</p>
+            <p className="text-gray-600 mb-2">Fare: {bus.fare.actualPrice}</p>
             <div className="mt-4 flex justify-between">
               <button className="bg-green-800 text-white  px-8 py-2 rounded-full flex items-center"  onClick={() => handleEditClick(bus._id)}>
               <FaEdit className="mr-2" />

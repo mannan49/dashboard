@@ -4,19 +4,9 @@ import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 import { addBus } from "../../components/apis/BusesApi";
 import Loader from "../../components/utils/Loader";
+import { pakistanCities } from "../../components/utils/data";
 
 function AddBusForm() {
-  // const token = localStorage.getItem("token");
-  let adminId = "";
-  // let role = "";
-  // if (token) {
-  //   const decodedToken = jwtDecode(token);
-  //   adminId = decodedToken.sub; // Ensure the adminId exists in the token payload
-
-  // }
-  // const [email, setEmail] = useState()
-
-  // Form state for all fields
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     startLocation: "",
@@ -25,13 +15,59 @@ function AddBusForm() {
     arrivalTime: "",
     date: "",
     busCapacity: "",
-    busDetails: "",
-    fare: "",
+    busDetails: {
+      busNumber: "",
+      engineNumber: "",
+      wifi: false,
+      ac: false,
+      fuelType: "diesel",
+      standard: "economy",
+    },
+    fare: {
+      actualPrice: "",
+      discount: "",
+      promoCode: "",
+    },
+    stops: [{ name: "", locationLink: "", timeDuration: "" }],
   });
+
+  const cityOptions = Object.keys(pakistanCities);
+
+  const getAllStops = () => {
+    return Object.values(pakistanCities).flatMap((city) => city.busStops);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleNestedInputChange = (e, key, subKey) => {
+    const { name, value, checked, type } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [key]: {
+        ...prevState[key],
+        [subKey || name]: type === "checkbox" ? checked : value,
+      },
+    }));
+  };
+
+  const handleAddStop = () => {
+    setFormData((prevState) => ({
+      ...prevState,
+      stops: [
+        ...prevState.stops,
+        { name: "", locationLink: "", timeDuration: "" },
+      ],
+    }));
+  };
+
+  const handleRemoveStop = (index) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      stops: prevState.stops.filter((_, i) => i !== index),
+    }));
   };
 
   const handleFormSubmit = async (e) => {
@@ -51,36 +87,19 @@ function AddBusForm() {
     setIsLoading(true);
 
     try {
-      // Upload the image to Cloudinary
-      // let imageUrl = "";
-      // if (selectedFile) {
-      //   const formData = new FormData();
-      //   formData.append("file", selectedFile);
-      //   formData.append("upload_preset", "your_cloudinary_preset"); // Your Cloudinary upload preset
-
-      //   const cloudinaryResponse = await fetch(
-      //     "https://api.cloudinary.com/v1_1/dyoql4rkm/image/upload",
-      //     {
-      //       method: "POST",
-      //       body: formData,
-      //     }
-      //   );
-      //   const cloudinaryData = await cloudinaryResponse.json();
-      //   imageUrl = cloudinaryData.secure_url;
-      // }
-
-      // Prepare bus data with the Cloudinary image URL
       const data = {
         adminId,
-        startLocation: formData.startLocation,
-        endLocation: formData.endLocation,
+        route: {
+          startCity: formData.startLocation,
+          endCity: formData.endLocation,
+          stops: formData.stops,
+        },
         departureTime: formData.departureTime,
         arrivalTime: formData.arrivalTime,
         date: formData.date,
         busCapacity: formData.busCapacity,
         busDetails: formData.busDetails,
         fare: formData.fare,
-        // image: imageUrl, // Attach uploaded image URL
       };
 
       const response = await addBus(data);
@@ -98,56 +117,60 @@ function AddBusForm() {
   };
 
   return (
-    <div className="content m-5">
       <form
         className="mt-2 p-6 bg-main w-full m-5 rounded-xl"
         onSubmit={handleFormSubmit}
-        style={{
-          // height: "85vh", // Fixed height for form container
-          // overflowY: "scroll", // Enables scroll when content overflows
-          padding: "10px",
-          border: "1px solid #ccc",
-          borderRadius: "10px",
-        }}
       >
-      
-        {/* Start Location */}
+        <h1 className="text-2xl text-center">Add a New Bus</h1>
+        {/* Start City */}
         <div className="mb-4">
           <label
-            htmlFor="startLocation"
+            htmlFor="startCity"
             className="block text-xl font-semibold mb-2"
           >
-            Start Location:
+            Start City:
           </label>
-          <input
-            type="text"
-            id="startLocation"
-            name="startLocation"
-            value={formData.startLocation}
+          <select
+            id="startCity"
+            name="startCity"
+            value={formData.startCity}
             onChange={handleInputChange}
             required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
-          />
+            className="border rounded-lg px-4 py-2 w-1/2"
+          >
+            <option value="">Select Depature City</option>
+            {cityOptions.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
         </div>
-        {/* End Location */}
+        {/* End City */}
         <div className="mb-4">
           <label
             htmlFor="endLocation"
             className="block text-xl font-semibold mb-2"
           >
-            End Location:
+            End City:
           </label>
-          <input
-            type="text"
-            id="endLocation"
-            name="endLocation"
-            value={formData.endLocation}
+          <select
+            id="endCity"
+            name="endCity"
+            value={formData.endCity}
             onChange={handleInputChange}
             required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
-          />
+            className="border rounded-lg px-4 py-2 w-1/2"
+          >
+            <option value="">Select End City</option>
+            {cityOptions.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
         </div>
-        {/* Departure Time */}
+        {/* Departure and Arrival Time */}
         <div className="mb-4">
           <label
             htmlFor="departureTime"
@@ -162,10 +185,9 @@ function AddBusForm() {
             value={formData.departureTime}
             onChange={handleInputChange}
             required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
+            className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
-        {/* Arrival Time */}
         <div className="mb-4">
           <label
             htmlFor="arrivalTime"
@@ -180,7 +202,7 @@ function AddBusForm() {
             value={formData.arrivalTime}
             onChange={handleInputChange}
             required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
+            className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
         {/* Date */}
@@ -195,68 +217,201 @@ function AddBusForm() {
             value={formData.date}
             onChange={handleInputChange}
             required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
+            className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
-        {/* Bus Capacity */}
+        {/* Stops */}
         <div className="mb-4">
-          <label
-            htmlFor="busCapacity"
-            className="block text-xl font-semibold mb-2"
+          <label className="block text-xl font-semibold mb-2">Stops:</label>
+          {formData.stops.map((stop, index) => {
+            const allStops = getAllStops(); // Fetch all stops
+
+            return (
+              <div key={index} className="mb-2">
+                <select
+                  value={stop.name}
+                  onChange={(e) => {
+                    const selectedStop = allStops.find(
+                      (s) => s.name === e.target.value
+                    );
+                    const stops = [...formData.stops];
+                    stops[index].name = selectedStop?.name || "";
+                    stops[index].locationLink = selectedStop?.link || "";
+                    setFormData({ ...formData, stops });
+                  }}
+                  required
+                  className="border rounded-lg h-9 p-2 mr-2"
+                >
+                  <option value="">Select Stop</option>
+                  {allStops.map((stop) => (
+                    <option key={stop.name} value={stop.name}>
+                      {stop.name}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="url"
+                  placeholder="Location Link"
+                  value={stop.locationLink}
+                  readOnly
+                  className="border rounded-lg h-9 p-2 mr-2"
+                />
+
+                <input
+                  type="number"
+                  placeholder="Duration (mins)"
+                  value={stop.timeDuration}
+                  onChange={(e) => {
+                    const stops = [...formData.stops];
+                    stops[index].timeDuration = e.target.value;
+                    setFormData({ ...formData, stops });
+                  }}
+                  className="border rounded-lg h-9 p-2 mr-2"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => handleRemoveStop(index)}
+                  className="text-red-500"
+                >
+                  Remove
+                </button>
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            onClick={handleAddStop}
+            className="bg-primary text-white px-4 py-2 rounded-lg"
           >
-            Bus Capacity:
+            Add Stop
+          </button>
+        </div>
+
+        {/* AC and WiFi */}
+        <div className="mb-4">
+          <label htmlFor="ac" className="block text-xl font-semibold mb-2">
+            AC:
           </label>
           <input
-            type="number"
-            id="busCapacity"
-            name="busCapacity"
-            value={formData.busCapacity}
-            onChange={handleInputChange}
-            required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
+            type="checkbox"
+            id="ac"
+            name="ac"
+            checked={formData.busDetails.ac}
+            onChange={(e) => handleNestedInputChange(e, "busDetails", "ac")}
           />
         </div>
-        {/* Bus Details */}
         <div className="mb-4">
-          <label
-            htmlFor="busDetails"
-            className="block text-xl font-semibold mb-2"
-          >
-            Bus Details:
+          <label htmlFor="wifi" className="block text-xl font-semibold mb-2">
+            WiFi:
           </label>
-          <textarea
-            id="busDetails"
-            name="busDetails"
-            value={formData.busDetails}
-            onChange={handleInputChange}
-            required
-            className="border rounded-lg p-2 w-full focus:outline-none focus:border-primary transition duration-300 h-24 resize-none"
+          <input
+            type="checkbox"
+            id="wifi"
+            name="wifi"
+            checked={formData.busDetails.wifi}
+            onChange={(e) => handleNestedInputChange(e, "busDetails", "wifi")}
           />
+        </div>
+        {/* Standard */}
+        <div className="mb-4">
+          <label className="block text-xl font-semibold mb-2">Standard:</label>
+          <label>
+            <input
+              type="radio"
+              name="standard"
+              value="economy"
+              checked={formData.busDetails.standard === "economy"}
+              onChange={(e) =>
+                handleNestedInputChange(e, "busDetails", "standard")
+              }
+            />
+            Economy
+          </label>
+          <label className="ml-4">
+            <input
+              type="radio"
+              name="standard"
+              value="executive"
+              checked={formData.busDetails.standard === "executive"}
+              onChange={(e) =>
+                handleNestedInputChange(e, "busDetails", "standard")
+              }
+            />
+            Executive
+          </label>
+          <label className="ml-4">
+            <input
+              type="radio"
+              name="standard"
+              value="business"
+              checked={formData.busDetails.standard === "business"}
+              onChange={(e) =>
+                handleNestedInputChange(e, "busDetails", "standard")
+              }
+            />
+            Business
+          </label>
         </div>
         {/* Fare */}
         <div className="mb-4">
-          <label htmlFor="fare" className="block text-xl font-semibold mb-2">
-            Fare:
+          <label
+            htmlFor="actualPrice"
+            className="block text-xl font-semibold mb-2"
+          >
+            Actual Price:
           </label>
           <input
             type="number"
-            id="fare"
-            name="fare"
-            value={formData.fare}
-            onChange={handleInputChange}
+            id="actualPrice"
+            name="actualPrice"
+            value={formData.fare.actualPrice}
+            onChange={(e) => handleNestedInputChange(e, "fare", "actualPrice")}
             required
-            className="border rounded-lg h-9 p-2 w-full focus:outline-none focus:border-primary transition duration-300"
+            className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
-        {/* Submit Button */}
+        <div className="mb-4">
+          <label
+            htmlFor="discount"
+            className="block text-xl font-semibold mb-2"
+          >
+            Discount:
+          </label>
+          <input
+            type="number"
+            id="discount"
+            name="discount"
+            value={formData.fare.discount}
+            onChange={(e) => handleNestedInputChange(e, "fare", "discount")}
+            className="border rounded-lg h-9 p-2 w-full"
+          />
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="promoCode"
+            className="block text-xl font-semibold mb-2"
+          >
+            Promo Code:
+          </label>
+          <input
+            type="text"
+            id="promoCode"
+            name="promoCode"
+            value={formData.fare.promoCode}
+            onChange={(e) => handleNestedInputChange(e, "fare", "promoCode")}
+            className="border rounded-lg h-9 p-2 w-full"
+          />
+        </div>
+        {/* Submit */}
         <button
           type="submit"
-          className="bg-primary text-white px-4 py-2 rounded-lg w-full hover:bg-primary-dark transition duration-300"
+          className="bg-primary text-white px-4 py-2 rounded-lg w-full"
         >
           {isLoading ? <Loader /> : "Add Bus"}
         </button>
       </form>
-    </div>
   );
 }
 
