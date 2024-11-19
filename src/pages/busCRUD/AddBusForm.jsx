@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
@@ -25,8 +25,10 @@ function AddBusForm() {
     },
     fare: {
       actualPrice: "",
-      discount: "",
+      discount: 0,
       promoCode: "",
+      paid: false,
+      medium: "cash",
     },
     stops: [{ name: "", locationLink: "", timeDuration: "" }],
   });
@@ -52,6 +54,34 @@ function AddBusForm() {
       },
     }));
   };
+
+  const resetForm = () => {
+    setFormData({
+      startLocation: "",
+      endLocation: "",
+      departureTime: "",
+      arrivalTime: "",
+      date: "",
+      busCapacity: "",
+      busDetails: {
+        busNumber: "",
+        engineNumber: "",
+        wifi: false,
+        ac: false,
+        fuelType: "diesel",
+        standard: "economy",
+      },
+      fare: {
+        actualPrice: "",
+        discount: "",
+        promoCode: "",
+        paid: false,
+        medium: "cash",
+      },
+      stops: [{ name: "", locationLink: "", timeDuration: "" }],
+    });
+  };
+  
 
   const handleAddStop = () => {
     setFormData((prevState) => ({
@@ -87,15 +117,20 @@ function AddBusForm() {
     setIsLoading(true);
 
     try {
+      const formattedDateTime = (date, time) => {
+        const dateTime = new Date(`${date}T${time}`);
+        return dateTime.toISOString();
+      };
+
       const data = {
         adminId,
         route: {
-          startCity: formData.startLocation,
-          endCity: formData.endLocation,
+          startCity: formData.startCity,
+          endCity: formData.endCity,
           stops: formData.stops,
         },
-        departureTime: formData.departureTime,
-        arrivalTime: formData.arrivalTime,
+        departureTime: formattedDateTime(formData.date, formData.departureTime),
+        arrivalTime: formattedDateTime(formData.date, formData.arrivalTime),
         date: formData.date,
         busCapacity: formData.busCapacity,
         busDetails: formData.busDetails,
@@ -106,6 +141,7 @@ function AddBusForm() {
 
       if (response.success) {
         toast.success("Bus has been added successfully!");
+        resetForm();
       } else {
         toast.error("Failed to add bus");
       }
@@ -117,11 +153,12 @@ function AddBusForm() {
   };
 
   return (
-      <form
-        className="mt-2 p-6 bg-main w-full m-5 rounded-xl"
-        onSubmit={handleFormSubmit}
-      >
-        <h1 className="text-2xl text-center">Add a New Bus</h1>
+    <form
+      className="mt-2 p-4 bg-main w-full rounded-xl"
+      onSubmit={handleFormSubmit}
+    >
+      <h1 className="text-2xl text-center font-bold mb-4">Add a New Bus</h1>
+      <div className="pr-4 grid grid-cols-2 gap-6 w-full">
         {/* Start City */}
         <div className="mb-4">
           <label
@@ -136,7 +173,7 @@ function AddBusForm() {
             value={formData.startCity}
             onChange={handleInputChange}
             required
-            className="border rounded-lg px-4 py-2 w-1/2"
+            className="border rounded-lg px-4 py-2 w-full"
           >
             <option value="">Select Depature City</option>
             {cityOptions.map((city) => (
@@ -160,7 +197,7 @@ function AddBusForm() {
             value={formData.endCity}
             onChange={handleInputChange}
             required
-            className="border rounded-lg px-4 py-2 w-1/2"
+            className="border rounded-lg px-4 py-2 w-full"
           >
             <option value="">Select End City</option>
             {cityOptions.map((city) => (
@@ -170,6 +207,8 @@ function AddBusForm() {
             ))}
           </select>
         </div>
+      </div>
+      <div className="pr-4 grid grid-cols-2 gap-6 w-full">
         {/* Departure and Arrival Time */}
         <div className="mb-4">
           <label
@@ -205,7 +244,9 @@ function AddBusForm() {
             className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
-        {/* Date */}
+      </div>
+      {/* Date */}
+      <div className="pr-4 grid grid-cols-2 gap-6 w-full">
         <div className="mb-4">
           <label htmlFor="date" className="block text-xl font-semibold mb-2">
             Date:
@@ -220,141 +261,208 @@ function AddBusForm() {
             className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
-        {/* Stops */}
-        <div className="mb-4">
-          <label className="block text-xl font-semibold mb-2">Stops:</label>
-          {formData.stops.map((stop, index) => {
-            const allStops = getAllStops(); // Fetch all stops
-
-            return (
-              <div key={index} className="mb-2">
-                <select
-                  value={stop.name}
-                  onChange={(e) => {
-                    const selectedStop = allStops.find(
-                      (s) => s.name === e.target.value
-                    );
-                    const stops = [...formData.stops];
-                    stops[index].name = selectedStop?.name || "";
-                    stops[index].locationLink = selectedStop?.link || "";
-                    setFormData({ ...formData, stops });
-                  }}
-                  required
-                  className="border rounded-lg h-9 p-2 mr-2"
-                >
-                  <option value="">Select Stop</option>
-                  {allStops.map((stop) => (
-                    <option key={stop.name} value={stop.name}>
-                      {stop.name}
-                    </option>
-                  ))}
-                </select>
-
-                <input
-                  type="url"
-                  placeholder="Location Link"
-                  value={stop.locationLink}
-                  readOnly
-                  className="border rounded-lg h-9 p-2 mr-2"
-                />
-
-                <input
-                  type="number"
-                  placeholder="Duration (mins)"
-                  value={stop.timeDuration}
-                  onChange={(e) => {
-                    const stops = [...formData.stops];
-                    stops[index].timeDuration = e.target.value;
-                    setFormData({ ...formData, stops });
-                  }}
-                  className="border rounded-lg h-9 p-2 mr-2"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => handleRemoveStop(index)}
-                  className="text-red-500"
-                >
-                  Remove
-                </button>
-              </div>
-            );
-          })}
-          <button
-            type="button"
-            onClick={handleAddStop}
-            className="bg-primary text-white px-4 py-2 rounded-lg"
-          >
-            Add Stop
-          </button>
+        <div className="grid grid-cols-2">
+          {/* AC and WiFi */}
+          <div className="mb-4">
+            <label htmlFor="ac" className="block text-xl font-semibold mb-2">
+              AC
+            </label>
+            <input
+              type="checkbox"
+              id="ac"
+              name="ac"
+              checked={formData.busDetails.ac}
+              onChange={(e) => handleNestedInputChange(e, "busDetails", "ac")}
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="wifi" className="block text-xl font-semibold mb-2">
+              Wi-Fi
+            </label>
+            <input
+              type="checkbox"
+              id="wifi"
+              name="wifi"
+              checked={formData.busDetails.wifi}
+              onChange={(e) => handleNestedInputChange(e, "busDetails", "wifi")}
+            />
+          </div>
         </div>
+      </div>
 
-        {/* AC and WiFi */}
-        <div className="mb-4">
-          <label htmlFor="ac" className="block text-xl font-semibold mb-2">
-            AC:
-          </label>
+      {/* Stops */}
+      <div className="mb-4">
+        <label className="block text-xl font-semibold mb-2">Stops:</label>
+        {formData.stops.map((stop, index) => {
+          const allStops = getAllStops(); // Fetch all stops
+
+          return (
+            <div key={index} className="mb-2">
+              <select
+                value={stop.name}
+                onChange={(e) => {
+                  const selectedStop = allStops.find(
+                    (s) => s.name === e.target.value
+                  );
+                  const stops = [...formData.stops];
+                  stops[index].name = selectedStop?.name || "";
+                  stops[index].locationLink = selectedStop?.link || "";
+                  setFormData({ ...formData, stops });
+                }}
+                required
+                className="border rounded-lg h-9 p-2 mr-2"
+              >
+                <option value="">Select Stop</option>
+                {allStops.map((stop) => (
+                  <option key={stop.name} value={stop.name}>
+                    {stop.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="url"
+                placeholder="Location Link"
+                value={stop.locationLink}
+                readOnly
+                className="border rounded-lg h-9 p-2 mr-2"
+              />
+
+              <input
+                type="number"
+                placeholder="Duration (mins)"
+                value={stop.timeDuration}
+                onChange={(e) => {
+                  const stops = [...formData.stops];
+                  stops[index].timeDuration = e.target.value;
+                  setFormData({ ...formData, stops });
+                }}
+                className="border rounded-lg h-9 p-2 mr-2"
+              />
+
+              <button
+                type="button"
+                onClick={handleAddStop}
+                className="bg-primary text-white px-4 py-2 rounded-lg"
+              >
+                Add Stop
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRemoveStop(index)}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg ml-4"
+              >
+                Remove
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Standard */}
+      <div className="mb-4 flex gap-4">
+        <label className="block text-xl font-semibold mb-2">Standard:</label>
+        <label className=" text-xl">
           <input
-            type="checkbox"
-            id="ac"
-            name="ac"
-            checked={formData.busDetails.ac}
-            onChange={(e) => handleNestedInputChange(e, "busDetails", "ac")}
+            type="radio"
+            name="standard"
+            value="economy"
+            checked={formData.busDetails.standard === "economy"}
+            onChange={(e) =>
+              handleNestedInputChange(e, "busDetails", "standard")
+            }
           />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="wifi" className="block text-xl font-semibold mb-2">
-            WiFi:
-          </label>
+          Economy
+        </label>
+        <label className="ml-4 text-xl">
           <input
-            type="checkbox"
-            id="wifi"
-            name="wifi"
-            checked={formData.busDetails.wifi}
-            onChange={(e) => handleNestedInputChange(e, "busDetails", "wifi")}
+            type="radio"
+            name="standard"
+            value="executive"
+            checked={formData.busDetails.standard === "executive"}
+            onChange={(e) =>
+              handleNestedInputChange(e, "busDetails", "standard")
+            }
           />
-        </div>
-        {/* Standard */}
-        <div className="mb-4">
-          <label className="block text-xl font-semibold mb-2">Standard:</label>
-          <label>
-            <input
-              type="radio"
-              name="standard"
-              value="economy"
-              checked={formData.busDetails.standard === "economy"}
-              onChange={(e) =>
-                handleNestedInputChange(e, "busDetails", "standard")
-              }
-            />
-            Economy
-          </label>
-          <label className="ml-4">
-            <input
-              type="radio"
-              name="standard"
-              value="executive"
-              checked={formData.busDetails.standard === "executive"}
-              onChange={(e) =>
-                handleNestedInputChange(e, "busDetails", "standard")
-              }
-            />
-            Executive
-          </label>
-          <label className="ml-4">
-            <input
-              type="radio"
-              name="standard"
-              value="business"
-              checked={formData.busDetails.standard === "business"}
-              onChange={(e) =>
-                handleNestedInputChange(e, "busDetails", "standard")
-              }
-            />
-            Business
-          </label>
-        </div>
-        {/* Fare */}
+          Executive
+        </label>
+        <label className="ml-4 text-xl">
+          <input
+            type="radio"
+            name="standard"
+            value="business"
+            checked={formData.busDetails.standard === "business"}
+            onChange={(e) =>
+              handleNestedInputChange(e, "busDetails", "standard")
+            }
+          />
+          Business
+        </label>
+      </div>
+      <div className="pr-4 grid grid-cols-3 gap-6 w-full">
+        {/* Bus Capacity */}
+      <div className="mb-4">
+        <label
+          htmlFor="busCapacity"
+          className="block text-xl font-semibold mb-2"
+        >
+          Bus Capacity:
+        </label>
+        <input
+          type="number"
+          id="busCapacity"
+          name="busCapacity"
+          value={formData.busCapacity}
+          onChange={handleInputChange}
+          required
+          min="1"
+          className="border rounded-lg h-9 p-2 w-full"
+        />
+      </div>
+
+      {/* Bus Number */}
+      <div className="mb-4">
+        <label htmlFor="busNumber" className="block text-xl font-semibold mb-2">
+          Bus Number:
+        </label>
+        <input
+          type="text"
+          id="busNumber"
+          name="busNumber"
+          value={formData.busDetails.busNumber}
+          onChange={(e) =>
+            handleNestedInputChange(e, "busDetails", "busNumber")
+          }
+          required
+          className="border rounded-lg h-9 p-2 w-full"
+        />
+      </div>
+
+      {/* Engine Number */}
+      <div className="mb-4">
+        <label
+          htmlFor="engineNumber"
+          className="block text-xl font-semibold mb-2"
+        >
+          Engine Number:
+        </label>
+        <input
+          type="text"
+          id="engineNumber"
+          name="engineNumber"
+          value={formData.busDetails.engineNumber}
+          onChange={(e) =>
+            handleNestedInputChange(e, "busDetails", "engineNumber")
+          }
+          required
+          className="border rounded-lg h-9 p-2 w-full"
+        />
+      </div>
+      </div>
+
+      {/* Fare */}
+      <div className="pr-4 grid grid-cols-3 gap-6 w-full">
         <div className="mb-4">
           <label
             htmlFor="actualPrice"
@@ -404,14 +512,17 @@ function AddBusForm() {
             className="border rounded-lg h-9 p-2 w-full"
           />
         </div>
-        {/* Submit */}
+      </div>
+      {/* Submit */}
+      <div className="flex items-center justify-center">
         <button
           type="submit"
-          className="bg-primary text-white px-4 py-2 rounded-lg w-full"
+          className="bg-primary text-white px-4 py-2 rounded-lg lg:w-1/3"
         >
           {isLoading ? <Loader /> : "Add Bus"}
         </button>
-      </form>
+      </div>
+    </form>
   );
 }
 
