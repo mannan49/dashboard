@@ -12,6 +12,7 @@ import PaymentPage from "./pages/PaymentPage";
 import EditBus from "./pages/busCRUD/EditBus";
 import ProtectedRoute from "./components/utils/ProtectedRoute";
 import AddBusFormPage from "./pages/AddBusFormPage";
+import DriverMap from "./components/gps/MapView";
 
 function App() {
   return (
@@ -33,7 +34,8 @@ function App() {
           <Route path="/routes" element={<BusRoutes />}></Route>
           <Route path="/payments" element={<PaymentPage />}></Route>
           <Route path="/add-bus" element={<AddBusFormPage />}></Route>
-          <Route path="/edit-bus/:busId" element={<EditBus />} />
+          <Route path="/edit-bus/:busId" element={<EditBus />}></Route>
+          <Route path="/map" element={<DriverMap />}></Route>
         </Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
