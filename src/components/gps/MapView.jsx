@@ -141,7 +141,12 @@ const DriverMap = () => {
             />
           )}
           {/* Polyline */}
-          <Polyline positions={[driverLocation, riderLocation]} color="blue" />
+          {driverLocation && riderLocation && (
+            <Polyline
+              positions={[riderLocation, driverLocation]}
+              color="blue"
+            />
+          )}
         </MapContainer>
       )}
     </div>
