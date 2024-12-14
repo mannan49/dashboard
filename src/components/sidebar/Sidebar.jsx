@@ -7,6 +7,7 @@ import { BsBuildingsFill } from "react-icons/bs";
 import { FaBusAlt } from "react-icons/fa";
 import { FaUser, FaRoute } from "react-icons/fa6";
 import { MdPayment } from "react-icons/md";
+import { RiRfidLine } from "react-icons/ri";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 import SidebarItem from "./SidebarItem";
@@ -18,29 +19,28 @@ const Sidebar = () => {
   if (token) {
     const decodedToken = jwtDecode(token);
     role = decodedToken.role;
-    console.log("Role", role)
+    console.log("Role", role);
   }
-  
 
   const commonItems = [
     { to: "/", icon: IoMdHome, label: "Dashboard" },
-    { to: "/regusers", icon: FaUser, label: "Users" }
-    
+    { to: "/regusers", icon: FaUser, label: "Users" },
   ];
 
   const adminItems = [
     { to: "/buses", icon: FaBusAlt, label: "Buses" },
-    { to: "/payments", icon: MdPayment, label: "Payments" }
+    { to: "/payments", icon: MdPayment, label: "Payments" },
+    { to: "/routes", icon: FaRoute, label: "Routes" },
+    { to: "/scanner", icon: RiRfidLine, label: "Scanner" },
   ];
 
   const superAdminItems = [
-    { to: "/companies", icon: BsBuildingsFill, label: "Companies" }
+    { to: "/companies", icon: BsBuildingsFill, label: "Companies" },
     // { to: "/routes", icon: FaRoute, label: "Routes" },
   ];
 
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     navigate("/login");
     toast.success("User Logged out Successfully");
   };
@@ -57,24 +57,41 @@ const Sidebar = () => {
       <div className="h-[70vh] grid grid-rows-[auto,auto]">
         <div>
           <ul className="space-y-4 w-full">
-          {commonItems.map((item, index) => (
-              <SidebarItem key={index} to={item.to} icon={item.icon} label={item.label} />
+            {commonItems.map((item, index) => (
+              <SidebarItem
+                key={index}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+              />
             ))}
-          {role === "admin" &&
+            {role === "admin" &&
               adminItems.map((item, index) => (
-                <SidebarItem key={index} to={item.to} icon={item.icon} label={item.label} />
+                <SidebarItem
+                  key={index}
+                  to={item.to}
+                  icon={item.icon}
+                  label={item.label}
+                />
               ))}
-            
-            
-           {role === "superadmin" &&
+
+            {role === "superadmin" &&
               superAdminItems.map((item, index) => (
-                <SidebarItem key={index} to={item.to} icon={item.icon} label={item.label} />
+                <SidebarItem
+                  key={index}
+                  to={item.to}
+                  icon={item.icon}
+                  label={item.label}
+                />
               ))}
-      
           </ul>
         </div>
         <div className="px-4 flex flex-col-reverse ">
-          <NavLink to="/login" onClick={handleLogout} className="flex items-center gap-4 app-side-li">
+          <NavLink
+            to="/login"
+            onClick={handleLogout}
+            className="flex items-center gap-4 app-side-li"
+          >
             <BiLogOutCircle />
             <span>Logout</span>
           </NavLink>
