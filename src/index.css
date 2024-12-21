@@ -36,7 +36,6 @@ h6 {
 p,
 button {
   font-family: var(--primary-font);
-  color: var(--primary-color);
 }
 label {
   font-family: var(--primary-font);

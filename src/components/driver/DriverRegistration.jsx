@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { FaBus } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { apiBaseUrl } from "../apis/setting";
 import Loader from "../utils/Loader";
+import { GrUserWorker } from "react-icons/gr";
+import { jwtDecode } from "jwt-decode";
 
-function AdminRegistration() {
+function DriverRegistration() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "Password123!",
-    company: "",
-    role: "admin",
+    companyId: "",
+    cnicNumber: "",
+    phoneNumber: "",
+    dob: "",
   });
 
   const handleChange = (e) => {
@@ -24,7 +27,8 @@ function AdminRegistration() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token"); // Ensure you have the token
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
       const response = await fetch(`${apiBaseUrl}/admin/register`, {
         method: "POST",
         headers: {
@@ -33,21 +37,35 @@ function AdminRegistration() {
         },
         body: JSON.stringify({
           name: formData.name,
+          role: "driver",
           email: formData.email,
           password: formData.password,
-          company: formData.company,
+          companyId: decodedToken?.sub,
+          dob: formData.dob,
+          cnicNumber: formData.cnicNumber,
+          phoneNumber: formData.phoneNumber,
+          company: null,
         }),
       });
 
+      console.log(response);
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error("Failed to register admin");
+        throw new Error(`${data.message}`);
       }
 
-      const data = await response.json();
-      toast.success("Admin registered successfully!");
-      console.log("Registered Admin:", data);
+      toast.success("Driver registered successfully!");
+      setFormData({
+        name: "",
+        email: "",
+        password: "Password123!",
+        companyId: "",
+        cnicNumber: "",
+        phoneNumber: "",
+        dob: "",
+      });
     } catch (error) {
-      toast.error(`Error: ${error.message}`);
+      toast.error(`${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -57,16 +75,10 @@ function AdminRegistration() {
     <div className="flex justify-center m-3 w-2/4">
       <form
         onSubmit={handleSubmit}
-        className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-5 bg-main"
+        className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-3 bg-main"
       >
-        <div className="flex items-center justify-center">
-          <FaBus className="text-2xl text-primary mr-2" />
-          <span className="text-primary text-2xl text-center font-bold mb-0.5">
-            Tap & Travel
-          </span>
-        </div>
         <h2 className="text-xl italic font-bold text-center mb-0.5">
-          Journey Bright, Day or Night
+          Driver Registration Form
         </h2>
 
         <div className="mb-1 flex flex-col">
@@ -83,21 +95,6 @@ function AdminRegistration() {
             onChange={handleChange}
             required
           />
-        </div>
-        <div className="mb-1 flex flex-col">
-          <label htmlFor="role" className="font-bold text-lg">
-            Role:
-          </label>
-          <select
-            className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            id="options"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-          >
-            <option value="option1">Admin</option>
-            <option value="option2">User</option>
-          </select>
         </div>
 
         <div className="mb-1 flex flex-col">
@@ -132,30 +129,72 @@ function AdminRegistration() {
         </div>
 
         <div className="mb-1 flex flex-col">
-          <label htmlFor="company-name" className="font-bold text-lg">
-            Company Name :
+          <label htmlFor="dob" className="font-bold text-lg">
+            Date of Birth
           </label>
           <input
+            type="date"
+            max="2004-01-01"
             className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            name="company"
-            id="company-name"
-            placeholder="Company Name"
-            value={formData.company}
+            name="dob"
+            id="dob"
+            value={formData.dob}
             onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="mb-1 flex flex-col">
+          <label htmlFor="cnic-number" className="font-bold text-lg">
+            CNIC Number
+          </label>
+          <input
+            type="tel"
+            className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
+            name="cnicNumber"
+            id="cnic-number"
+            placeholder="CNIC Number"
+            value={formData.cnicNumber}
+            onChange={handleChange}
+            maxLength={13}
+            pattern="[0-9]{13}"
+            required
+          />
+        </div>
+
+        <div className="mb-1 flex flex-col">
+          <label htmlFor="phone-number" className="font-bold text-lg">
+            Phone Number
+          </label>
+          <input
+            type="tel" 
+            className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
+            name="phoneNumber"
+            id="phone-number"
+            placeholder="Phone Number"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+            maxLength={11}
+            pattern="[0-9]{11}"
             required
           />
         </div>
 
         <div>
           <div className="bg-primary my-2 border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-            <button className="text-main text-lg w-full" type="submit">
-              {loading ? <Loader /> : "Register Company"}
+            <button
+              className="text-main text-lg w-full flex justify-center items-center gap-2"
+              type="submit"
+            >
+              Register Driver <GrUserWorker />
             </button>
           </div>
         </div>
+
+        {loading && <Loader />}
       </form>
     </div>
   );
 }
 
-export default AdminRegistration;
+export default DriverRegistration;

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { apiBaseUrl } from "../components/apis/setting";
+import { jwtDecode } from "jwt-decode";
 
 const BusesPage = () => {
   const navigate = useNavigate();
@@ -30,13 +31,9 @@ const BusesPage = () => {
     return `${daySuffix(day)} ${month} ${year}`;
   };
 
-
-
   const handleEditClick = (busId) => {
-     navigate(`/edit-bus/${busId}`);
-    console.log("Edit bus with ID:", busId);
+    navigate(`/edit-bus/${busId}`);
   };
-
 
   const handleDeleteClick = (busId) => {
     if (window.confirm("Are you sure you want to delete this bus?")) {
@@ -48,11 +45,14 @@ const BusesPage = () => {
     try {
       const response = await fetch(`${apiBaseUrl}/bus/${busId}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
 
       if (!response.ok) throw new Error("Failed to delete bus");
 
-      setBuses(buses.filter(bus => bus._id !== busId));
+      setBuses(buses.filter((bus) => bus._id !== busId));
       toast.success("Bus deleted successfully");
     } catch (error) {
       console.error("Error deleting bus:", error);
@@ -60,15 +60,18 @@ const BusesPage = () => {
     }
   };
 
-
   const getAllBuses = async () => {
     try {
-      const response = await fetch(`${apiBaseUrl}/bus`, {
-        method: "GET", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const decodedToken = jwtDecode(localStorage.getItem("token"));
+      const response = await fetch(
+        `${apiBaseUrl}/bus/ad-bus?adminId=${decodedToken?.sub}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch buses");
@@ -85,9 +88,9 @@ const BusesPage = () => {
     getAllBuses();
   }, []);
 
-  // Add bus page 
+  // Add bus page
   const handleAddBusClick = () => {
-    navigate("/add-bus"); 
+    navigate("/add-bus");
   };
   return (
     <div className="content p-6 pb-16 bg-main min-h-screen w-full m-5 rounded-xl">
@@ -110,21 +113,31 @@ const BusesPage = () => {
             className="bg-white rounded-lg shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl"
           >
             <p className="text-gray-600 mb-2 app-btn text-center">
-              {bus.route.startCity + " to " + bus.route.endCity}
+              {bus?.route?.startCity + " to " + bus?.route?.endCity}
             </p>
-            <p className="text-gray-600 mb-2">{formatDate(bus.date)}</p>
+            <p className="text-gray-600 mb-2">{formatDate(bus?.date)}</p>
             <p className="text-gray-600 mb-2 ">
-              Time: {bus.departureTime + " to " + bus.arrivalTime}
+              Time: {bus?.departureTime + " to " + bus?.arrivalTime}
             </p>
-            <p className="text-gray-600 mb-2">Total Seats: {bus.busCapacity}</p>
-            <p className="text-gray-600 mb-2">Details: {bus.busDetails.busNumber}</p>
-            <p className="text-gray-600 mb-2">Fare: {bus.fare.actualPrice}</p>
+            <p className="text-gray-600 mb-2">
+              Total Seats: {bus?.busDetails?.busCapacity}
+            </p>
+            <p className="text-gray-600 mb-2">
+              Details: {bus?.busDetails?.busNumber}
+            </p>
+            <p className="text-gray-600 mb-2">Fare: {bus?.fare?.actualPrice}</p>
             <div className="mt-4 flex justify-between">
-              <button className="bg-green-800 text-white  px-8 py-2 rounded-full flex items-center"  onClick={() => handleEditClick(bus._id)}>
-              <FaEdit className="mr-2" />
-              Edit
+              <button
+                className="bg-green-800 text-white  px-8 py-2 rounded-full flex items-center"
+                onClick={() => handleEditClick(bus._id)}
+              >
+                <FaEdit className="mr-2" />
+                Edit
               </button>
-              <button className="bg-red-700 text-white py-2 px-8 rounded-full hover:bg-red-500 flex items-center" onClick={() => handleDeleteClick(bus._id)}>
+              <button
+                className="bg-red-700 text-white py-2 px-8 rounded-full hover:bg-red-500 flex items-center"
+                onClick={() => handleDeleteClick(bus._id)}
+              >
                 <FaTrashAlt className="mr-2" />
                 Delete
               </button>

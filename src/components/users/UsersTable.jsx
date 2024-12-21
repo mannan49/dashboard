@@ -116,12 +116,12 @@ const UsersTable = () => {
       alert("No RFID card assigned to this user.");
       return;
     }
-  
+
     // Show confirmation dialog to the admin
     const confirmed = window.confirm(
       `Are you sure you want to delete the RFID card for user: ${user.email}?`
     );
-  
+
     if (confirmed) {
       // Proceed with the delete operation if confirmed
       deleteRfid(user);
@@ -130,7 +130,7 @@ const UsersTable = () => {
       console.log("RFID deletion canceled.");
     }
   };
-  
+
   const deleteRfid = async (user) => {
     try {
       const token = localStorage.getItem("token");
@@ -144,17 +144,17 @@ const UsersTable = () => {
           email: user.email,
         }),
       });
-  
+
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Failed to delete RFID");
       }
-  
+
       // If RFID is successfully deleted, fetch updated users
       const data = await response.json();
       toast.success(data.message);
       console.log("RFID deleted:", data);
-  
+
       // Fetch the updated user list after successfully deleting the RFID
       const usersResponse = await fetch(`${apiBaseUrl}/user/req`, {
         method: "GET",
@@ -163,21 +163,19 @@ const UsersTable = () => {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!usersResponse.ok) {
         throw new Error("Failed to fetch updated users");
       }
-  
+
       const updatedData = await usersResponse.json();
-      setUsers(updatedData.users); 
+      setUsers(updatedData.users);
     } catch (error) {
       console.error("Error deleting RFID:", error);
-      toast.error("Error deleting RFID: " + error.message); 
+      toast.error("Error deleting RFID: " + error.message);
     }
   };
-  
 
-  
   return (
     <div>
       {showScanner && (
@@ -193,8 +191,10 @@ const UsersTable = () => {
           showScanner ? "opacity-50 pointer-events-none" : ""
         }`}
       >
-        <div className="flex justify-between items-center flex-col sm:flex-row">
-          <h1 className="text-2xl font-bold mb-4 sm:mb-0 sm:pl-4">Users</h1>
+        <div className="text-center items-center mb-2 flex-col sm:flex-row">
+          <h1 className="text-2xl font-bold mb-4 sm:mb-0 sm:pl-4">
+            Registered Users
+          </h1>
         </div>
 
         {/* Responsive Table */}

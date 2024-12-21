@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import BusList from '../components/buses/BusList';
-import { apiBaseUrl } from '../components/apis/setting';
+import React, { useEffect, useState } from "react";
+import BusList from "../components/buses/BusList";
+import { apiBaseUrl } from "../components/apis/setting";
 
 const App = () => {
   const [admins, setAdmins] = useState([]);
@@ -8,26 +8,26 @@ const App = () => {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const token = localStorage.getItem("token"); 
+        const token = localStorage.getItem("token");
         const response = await fetch(`${apiBaseUrl}/admin`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
 
         const data = await response.json();
         // Filter the data to get only the admins
-        const adminBuses = data.filter(admin => admin.role === 'admin');
+        const adminBuses = data.filter((admin) => admin.role === "admin");
+        console.log("Admins", adminBuses);
         setAdmins(adminBuses);
-
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 

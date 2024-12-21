@@ -7,6 +7,8 @@ import { BsBuildingsFill } from "react-icons/bs";
 import { FaBusAlt } from "react-icons/fa";
 import { FaUser, FaRoute } from "react-icons/fa6";
 import { MdPayment } from "react-icons/md";
+import { GrUserWorker } from "react-icons/gr";
+import { FaUserShield, FaVanShuttle } from "react-icons/fa6";
 import { RiRfidLine } from "react-icons/ri";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
@@ -30,12 +32,20 @@ const Sidebar = () => {
   const adminItems = [
     { to: "/buses", icon: FaBusAlt, label: "Buses" },
     { to: "/payments", icon: MdPayment, label: "Payments" },
+    { to: "/add-driver", icon: GrUserWorker, label: "Drivers" },
+    { to: "/vehicles", icon: FaVanShuttle, label: "Vehicles" },
     { to: "/routes", icon: FaRoute, label: "Routes" },
+  ];
+
+  const driverItems = [
+    { to: "/companies", icon: BsBuildingsFill, label: "Companies" },
     { to: "/scanner", icon: RiRfidLine, label: "Scanner" },
+    { to: "/newadmin", icon: FaUserShield, label: "New Admin" },
   ];
 
   const superAdminItems = [
     { to: "/companies", icon: BsBuildingsFill, label: "Companies" },
+    { to: "/newadmin", icon: FaUserShield, label: "New Admin" },
     // { to: "/routes", icon: FaRoute, label: "Routes" },
   ];
 
@@ -67,6 +77,16 @@ const Sidebar = () => {
             ))}
             {role === "admin" &&
               adminItems.map((item, index) => (
+                <SidebarItem
+                  key={index}
+                  to={item.to}
+                  icon={item.icon}
+                  label={item.label}
+                />
+              ))}
+
+            {role === "driver" &&
+              driverItems.map((item, index) => (
                 <SidebarItem
                   key={index}
                   to={item.to}

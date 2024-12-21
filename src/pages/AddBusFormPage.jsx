@@ -1,12 +1,12 @@
-import React from 'react'
-import AddBusForm from './busCRUD/AddBusForm'
+import React from "react";
+import BusForm from "../components/forms/BusForm";
 
 const AddBusFormPage = () => {
   return (
-    <div className='content'>
-        <AddBusForm />
+    <div className="content flex justify-center">
+      <BusForm />
     </div>
-  )
-}
+  );
+};
 
-export default AddBusFormPage
+export default AddBusFormPage;
