@@ -7,16 +7,16 @@ import { MdModeEdit, MdDelete } from "react-icons/md";
 import { RiWifiOffLine, RiWifiLine } from "react-icons/ri";
 import toast from "react-hot-toast";
 
-const VehiclesPage = () => {
+const DriversPage = () => {
   const navigate = useNavigate();
-  const [vehicles, setVehicles] = useState([]);
+  const [drivers, setDrivers] = useState([]);
 
   const fetchVehicles = async () => {
     try {
       const decodedToken = jwtDecode(localStorage.getItem("token"));
 
       const response = await fetch(
-        `${apiBaseUrl}/bus-entity?adminId=${decodedToken?.sub}`
+        `${apiBaseUrl}/admin?adminId=${decodedToken?.sub}`
       );
 
       if (!response.ok) {
@@ -24,21 +24,21 @@ const VehiclesPage = () => {
       }
 
       const data = await response.json();
-      setVehicles(data);
-      console.log("DATA", vehicles);
+      setDrivers(data);
+      console.log("DATA", drivers);
     } catch (error) {
       console.error("Error fetching routes:", error);
     }
   };
-  const handleEditClick = (vehicleId) => {
-    navigate(`/add-vehicle/${vehicleId}`);
+  const handleEditClick = (driverId) => {
+    navigate(`/add-driver/${driverId}`);
   };
 
-  const handleDeleteClick = async (vehicleId) => {
-    if (window.confirm("Are you sure you want to delete this Vehicle?")) {
+  const handleDeleteClick = async (driverId) => {
+    if (window.confirm("Are you sure you want to delete this Driver?")) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`${apiBaseUrl}/bus-entity/${vehicleId}`, {
+        const response = await fetch(`${apiBaseUrl}/admin/${driverId}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -71,46 +71,36 @@ const VehiclesPage = () => {
           <h1 className="text-2xl font-bold text-gray-800">Registered Buses</h1>
           <button
             className="bg-primary text-white px-4 py-2 rounded-md shadow-sm hover:bg-primary"
-            onClick={() => navigate("/add-vehicle")}
+            onClick={() => navigate("/add-driver")}
           >
-            New Bus
+            Register new Driver
           </button>
         </div>
         <div className="text-black grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6  ">
-          {vehicles.map((vehicle, _id) => (
+          {drivers.map((driver, _id) => (
             <div
               key={_id}
               className="bg-white rounded-lg shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl"
             >
               <img
-                src={`https://www.freeiconspng.com/uploads/bus-png-${
-                  Math.floor(Math.random() * 5) + 1
-                }.png`}
+                src={`https://i.pinimg.com/originals/bd/d9/aa/bdd9aaee8c129b1d0a7180512c6f7ae5.png`}
                 alt="Bus Logo"
               />
               <div className="text-black">
-                <div className="flex justify-between items-center">
-                  <p>Engine No: {vehicle.engineNumber}</p>
+                <div className="flex justify-between items-center my-2">
+                  <p>Email: {driver.email}</p>
                   <div className="flex gap-2">
-                    <button onClick={() => handleEditClick(vehicle._id)}>
+                    <button onClick={() => handleEditClick(driver._id)}>
                       <MdModeEdit className="text-green-800 text-2xl" />
                     </button>
-                    <button onClick={() => handleDeleteClick(vehicle._id)}>
+                    <button onClick={() => handleDeleteClick(driver._id)}>
                       <MdDelete className="text-red-800 text-2xl" />
                     </button>
                   </div>
                 </div>
-                <p>Total Seats: {vehicle.busCapacity}</p>
-                <p>Fuel Type: {vehicle.fuelType}</p>
-                <p>Standard: {vehicle.standard}</p>
               </div>
               <div className="app-btn flex justify-center items-center mb-2 w-full gap-3">
-                <p className="text-white">Number : {vehicle.busNumber}</p>
-                {vehicle.wifi ? (
-                  <RiWifiLine className="text-2xl" />
-                ) : (
-                  <RiWifiOffLine className="text-2xl" />
-                )}
+                <p className="text-white">Name : {driver?.name}</p>
               </div>
             </div>
           ))}
@@ -120,4 +110,4 @@ const VehiclesPage = () => {
   );
 };
 
-export default VehiclesPage;
+export default DriversPage;

@@ -19,6 +19,7 @@ import RouteFormPage from "./pages/RouteFormPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import VehiclesPage from "./pages/VehiclesPages";
 import VehiclesFormPage from "./pages/VehiclesFormPage";
+import DriversPage from "./pages/DriversPage";
 
 function App() {
   return (
@@ -40,6 +41,11 @@ function App() {
             path="/add-driver"
             element={<DriverRegistrationPage />}
           ></Route>
+          <Route
+            path="/add-driver/:id"
+            element={<DriverRegistrationPage />}
+          ></Route>
+          <Route path="/drivers" element={<DriversPage />}></Route>
           <Route path="/regusers" element={<UserTablePage />}></Route>
           <Route path="/routes" element={<BusRoutes />}></Route>
           <Route path="/payments" element={<PaymentPage />}></Route>

@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { loginAdmin } from "../apis/AuthenticationApi";
 // import Loader from "../utils/Loader";
 import { useState } from "react";
+import Loader from "../utils/Loader";
 
 function Login() {
   const navigate = useNavigate();
@@ -12,32 +13,34 @@ function Login() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-
-  const handleSubmit= async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const data = {
       email: email,
-      password: password, 
+      password: password,
     };
     try {
-      const result = await loginAdmin(data); // Get the result from loginUser
+      const result = await loginAdmin(data);
 
       if (result.success) {
         const { data } = result;
-        window.localStorage.setItem("token", data.token); // Store token
+        window.localStorage.setItem("token", data.token);
+        setIsLoading(false);
         toast.success(data.message);
         navigate("/");
       } else {
+        setIsLoading(false);
         toast.error(result.message);
       }
     } catch (error) {
-      console.error("Login error:", error.message);
+      setIsLoading(false);
       toast.error("Something went wrong. Please try again.");
-    } 
-  }
-  
+    }
+  };
+
   return (
-    <div className="px-4 lg:px-0 grid grid-cols-1 md:grid-cols-2 overflow-hidden h-screen bg-[url(https://images.unsplash.com/photo-1470115636492-6d2b56f9146d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8bGlnaHQlMjBuYXR1cmV8ZW58MHx8MHx8fDA%3D)] lg:bg-none bg-main">
+    <div className="px-4 lg:px-0 grid grid-cols-1 md:grid-cols-2 overflow-hidden h-screen lg:bg-none bg-main">
       <div className="hidden md:block">
         <img
           src="https://images.unsplash.com/photo-1543859184-17ac017dde53?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -58,7 +61,7 @@ function Login() {
             </span>
           </div>
           <h2 className="text-xl italic font-bold text-center mb-0.5">
-          Journey Bright, Day or Night
+            Journey Bright, Day or Night
           </h2>
           <div className="mb-4 flex flex-col">
             <label htmlFor="email" className="font-bold text-lg">
@@ -94,12 +97,11 @@ function Login() {
 
           <div className="mb-1">
             <div className="bg-primary border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-              <button className="text-main text-xl w-full" type="submit" >
-                Log In
+              <button className="text-main text-xl w-full" type="submit">
+                {isLoading ? <Loader /> : "Log In"}
               </button>
             </div>
           </div>
-         
         </form>
       </div>
     </div>

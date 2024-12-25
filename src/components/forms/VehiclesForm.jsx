@@ -281,8 +281,6 @@ function VehiclesForm() {
             </button>
           </div>
         </div>
-
-        {loading && <Loader />}
       </form>
     </div>
   );

@@ -32,7 +32,7 @@ const Sidebar = () => {
   const adminItems = [
     { to: "/buses", icon: FaBusAlt, label: "Buses" },
     { to: "/payments", icon: MdPayment, label: "Payments" },
-    { to: "/add-driver", icon: GrUserWorker, label: "Drivers" },
+    { to: "/drivers", icon: GrUserWorker, label: "Drivers" },
     { to: "/vehicles", icon: FaVanShuttle, label: "Vehicles" },
     { to: "/routes", icon: FaRoute, label: "Routes" },
   ];

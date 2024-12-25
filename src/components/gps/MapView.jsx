@@ -67,7 +67,7 @@ const DriverMap = () => {
             latitude,
             longitude,
             role: "admin",
-            busId: "671e58cb2794757a101bc483",
+            busId: "6766eafdca4417d3f4f69b6e",
           });
 
           if (driverMarkerRef.current) {
@@ -84,7 +84,7 @@ const DriverMap = () => {
     // Fetch rider location
     const fetchRiderLocation = async () => {
       const response = await axios.post(`${apiBaseUrl}/location/fetch`, {
-        busId: "671e58cb2794757a101bc483",
+        busId: "6766eafdca4417d3f4f69b6e",
         adminId: decodedToken?.sub,
       });
       const riderData = response.data.data;

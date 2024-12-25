@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { apiBaseUrl } from "../apis/setting";
 import Loader from "../utils/Loader";
 import { GrUserWorker } from "react-icons/gr";
 import { jwtDecode } from "jwt-decode";
+import { useParams, useNavigate } from "react-router-dom";
 
 function DriverRegistration() {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,38 @@ function DriverRegistration() {
     dob: "",
   });
 
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (id) {
+      const fetchDriverData = async () => {
+        try {
+          const response = await fetch(`${apiBaseUrl}/driver/${id}`);
+          const data = await response.json();
+
+          if (response.ok) {
+            setFormData({
+              name: data.name,
+              email: data.email,
+              password: "Password123!",
+              companyId: data.companyId || "",
+              cnicNumber: data.cnicNumber || "",
+              phoneNumber: data.phoneNumber || "",
+              dob: data.dob || "",
+            });
+          } else {
+            toast.error("Driver data not found");
+          }
+        } catch (error) {
+          toast.error("Error fetching driver data");
+        }
+      };
+
+      fetchDriverData();
+    }
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -29,43 +62,51 @@ function DriverRegistration() {
     try {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
-      const response = await fetch(`${apiBaseUrl}/admin/register`, {
-        method: "POST",
+      const method = id ? "PUT" : "POST";
+      const url = id
+        ? `${apiBaseUrl}/driver/${id}`
+        : `${apiBaseUrl}/admin/register`;
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: formData.name,
-          role: "driver",
           email: formData.email,
           password: formData.password,
           companyId: decodedToken?.sub,
           dob: formData.dob,
           cnicNumber: formData.cnicNumber,
           phoneNumber: formData.phoneNumber,
-          company: null,
         }),
       });
 
-      console.log(response);
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(`${data.message}`);
+        throw new Error(data.message || "Something went wrong");
       }
 
-      toast.success("Driver registered successfully!");
-      setFormData({
-        name: "",
-        email: "",
-        password: "Password123!",
-        companyId: "",
-        cnicNumber: "",
-        phoneNumber: "",
-        dob: "",
-      });
+      toast.success(
+        id ? "Driver updated successfully!" : "Driver registered successfully!"
+      );
+      if (!id) {
+        setFormData({
+          name: "",
+          email: "",
+          password: "Password123!",
+          companyId: "",
+          cnicNumber: "",
+          phoneNumber: "",
+          dob: "",
+        });
+      } else {
+        navigate(`/drivers`);
+      }
     } catch (error) {
-      toast.error(`${error.message}`);
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -78,7 +119,7 @@ function DriverRegistration() {
         className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-3 bg-main"
       >
         <h2 className="text-xl italic font-bold text-center mb-0.5">
-          Driver Registration Form
+          {id ? "Edit Driver" : "Driver Registration Form"}
         </h2>
 
         <div className="mb-1 flex flex-col">
@@ -117,15 +158,17 @@ function DriverRegistration() {
           <label htmlFor="password" className="font-bold text-lg">
             Password :
           </label>
-          <input
-            className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          {!id && (
+            <input
+              className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter Password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          )}
         </div>
 
         <div className="mb-1 flex flex-col">
@@ -167,7 +210,7 @@ function DriverRegistration() {
             Phone Number
           </label>
           <input
-            type="tel" 
+            type="tel"
             className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
             name="phoneNumber"
             id="phone-number"
@@ -186,7 +229,7 @@ function DriverRegistration() {
               className="text-main text-lg w-full flex justify-center items-center gap-2"
               type="submit"
             >
-              Register Driver <GrUserWorker />
+              {id ? "Update Driver" : "Register Driver"} <GrUserWorker />
             </button>
           </div>
         </div>
