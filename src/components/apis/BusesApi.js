@@ -34,7 +34,7 @@ export const fetchBusById = async (busId) => {
   };
   
   export const updateBus = async (busId, data) => {
-    const response = await fetch(`http://localhost:8080/bus/${busId}`, {
+    const response = await fetch(`${apiBaseUrl}/bus/${busId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

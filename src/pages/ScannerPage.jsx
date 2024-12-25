@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { RiRfidLine } from "react-icons/ri";
 import toast from "react-hot-toast";
 import ScannerAnimation from "../components/utils/ScannerAnimation";
+import { apiBaseUrl } from "../components/apis/setting";
 
 const ScannerPage = () => {
   const navigate = useNavigate();
@@ -10,16 +11,13 @@ const ScannerPage = () => {
   // Function to handle the RFID scan and navigate
   const handleScan = async (scannedRFID) => {
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/ticket/user/information",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ RFIDCardNumber: scannedRFID }),
-        }
-      );
+      const response = await fetch(`${apiBaseUrl}/ticket/user/information`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ RFIDCardNumber: scannedRFID }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch user details. Please try again.");
