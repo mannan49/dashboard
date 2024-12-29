@@ -4,6 +4,7 @@ import { formatPhoneNumber } from "../utils/utilityFunctions.";
 import { MdEdit, MdDelete } from "react-icons/md";
 import ScannerAnimation from "../utils/ScannerAnimation";
 import toast from "react-hot-toast";
+import { capitalizeFirstLetter } from "../utils/HelperFunctions";
 
 const UsersTable = () => {
   const [users, setUsers] = useState([]);
@@ -54,6 +55,7 @@ const UsersTable = () => {
         body: JSON.stringify({
           email: selectedUser.email,
           RFIDCardNumber: rfid,
+          RFIDCardStatus: "delivered",
         }),
       });
 
@@ -199,12 +201,12 @@ const UsersTable = () => {
 
         {/* Responsive Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-200">
+          <table className="min-w-full border border-gray-200">
             <thead>
               <tr>
                 <th className="py-2 px-4 border-b">Email</th>
                 <th className="py-2 px-4 border-b">Phone Number</th>
-                <th className="py-2 px-4 border-b">Role</th>
+                <th className="py-2 px-4 border-b">Order Status</th>
                 <th className="py-2 px-4 border-b">Card Number</th>
                 <th className="py-2 px-4 border-b">Actions</th>
               </tr>
@@ -219,10 +221,14 @@ const UsersTable = () => {
                   <td className="py-2 px-4 border-b">
                     <span
                       className={`py-1 px-3 rounded-full text-white ${
-                        user.role === "Admin" ? "bg-gray-500" : "bg-primary"
+                        user.RFIDCardStatus === "pending"
+                          ? "bg-gray-500"
+                          : user.RFIDCardStatus === "delivered"
+                          ? "bg-green-500"
+                          : "bg-red-500"
                       }`}
                     >
-                      User
+                      {capitalizeFirstLetter(user.RFIDCardStatus)}
                     </span>
                   </td>
                   <td className="py-2 px-4 border-b">{user.RFIDCardNumber}</td>

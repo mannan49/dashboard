@@ -20,6 +20,9 @@ import NotFoundPage from "./pages/NotFoundPage";
 import VehiclesPage from "./pages/VehiclesPages";
 import VehiclesFormPage from "./pages/VehiclesFormPage";
 import DriversPage from "./pages/DriversPage";
+import DriverMapNavigation from "./components/gps/DriverMapNavigation";
+import DriverNavigationPage from "./pages/DriverNavigationPage";
+import NavigationBusesList from "./components/gps/NavigationBusesList";
 
 function App() {
   return (
@@ -33,6 +36,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          {/* HERE THIS ONE COMPONENT */}
           <Route index element={<DashboardContent />}></Route>
           <Route path="/companies" element={<Companies />}></Route>
           <Route path="/buses" element={<BusesPage />}></Route>
@@ -53,11 +57,13 @@ function App() {
           <Route path="/add-bus" element={<AddBusFormPage />}></Route>
           <Route path="/edit-bus/:id" element={<AddBusFormPage />}></Route>
           <Route path="/map" element={<DriverMap />}></Route>
+          <Route path="/driver/map/:busId" element={<DriverNavigationPage />}></Route>
           <Route path="/scanner" element={<ScannerPage />}></Route>
           <Route path="/add-vehicle" element={<VehiclesFormPage />}></Route>
           <Route path="/add-vehicle/:id" element={<VehiclesFormPage />}></Route>
           <Route path="/add-route" element={<RouteFormPage />}></Route>
           <Route path="/add-route/:id" element={<RouteFormPage />}></Route>
+          <Route path="/navigation" element={<NavigationBusesList />}></Route>
           <Route path="*" element={<NotFoundPage />} />
           <Route
             path="/user/bookings/:userId"

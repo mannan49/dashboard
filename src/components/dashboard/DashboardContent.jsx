@@ -1,32 +1,30 @@
 import React from "react";
-import Card from "./Card";
-import BarChart from "../Charts/BarChart";
-import MyRevenueLineChart from "../Charts/BumpChart";
-import CompanyTable from "./TableCompanies";
+import { jwtDecode } from "jwt-decode";
+import SuperAdminDashboard from "./SuperAdminDashboard";
+import AdminDashboard from "./AdminDashboard";
+import DriverDashboard from "./DriverDashboard";
 
-const MainContent = () => {
- 
-  return (
-    <div className="content lg:p-4">
-      <div className="m-auto lg:p-8">
-      <h1 className="font-bold text-3xl m-3">Admin Dashboard</h1>
-      {/* <TestInformation /> */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-      </div>
-      <div className="lg:flex mt-4" >
-      <BarChart/>
-    <MyRevenueLineChart/>
-      </div>
-      <div className="pt-4">
-      <CompanyTable/>
-      </div>
-    </div>
-    </div>
-  );
+const DashboardContent = () => {
+  const token = localStorage.getItem("token");
+  let role = "";
+
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    role = decodedToken.role;
+    role = role.trim().toLowerCase();
+    console.log(role);
+  }
+
+  if (role === "admin") {
+    console.log("In admin Dashboard");
+    return <AdminDashboard />;
+  } else if (role === "superadmin") {
+    return <SuperAdminDashboard />;
+  } else if (role === "driver") {
+    return <DriverDashboard />;
+  } else {
+    return <div>Access Denied: Invalid Role</div>;
+  }
 };
 
-export default MainContent;
+export default DashboardContent;

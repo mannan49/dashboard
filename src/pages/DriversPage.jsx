@@ -27,7 +27,7 @@ const DriversPage = () => {
       setDrivers(data);
       console.log("DATA", drivers);
     } catch (error) {
-      console.error("Error fetching routes:", error);
+      console.error("Error fetching drivers:", error);
     }
   };
   const handleEditClick = (driverId) => {

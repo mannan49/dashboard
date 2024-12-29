@@ -12,6 +12,7 @@ import { FaUserShield, FaVanShuttle } from "react-icons/fa6";
 import { RiRfidLine } from "react-icons/ri";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
+import { ImLocation } from "react-icons/im";
 import SidebarItem from "./SidebarItem";
 
 const Sidebar = () => {
@@ -24,10 +25,7 @@ const Sidebar = () => {
     console.log("Role", role);
   }
 
-  const commonItems = [
-    { to: "/", icon: IoMdHome, label: "Dashboard" },
-    { to: "/regusers", icon: FaUser, label: "Users" },
-  ];
+  const commonItems = [];
 
   const adminItems = [
     { to: "/buses", icon: FaBusAlt, label: "Buses" },
@@ -35,17 +33,18 @@ const Sidebar = () => {
     { to: "/drivers", icon: GrUserWorker, label: "Drivers" },
     { to: "/vehicles", icon: FaVanShuttle, label: "Vehicles" },
     { to: "/routes", icon: FaRoute, label: "Routes" },
+    { to: "/navigation", icon: ImLocation, label: "GPS Tracking" },
   ];
 
   const driverItems = [
-    { to: "/companies", icon: BsBuildingsFill, label: "Companies" },
+    { to: "/", icon: IoMdHome, label: "Dashboard" },
     { to: "/scanner", icon: RiRfidLine, label: "Scanner" },
-    { to: "/newadmin", icon: FaUserShield, label: "New Admin" },
   ];
 
   const superAdminItems = [
     { to: "/companies", icon: BsBuildingsFill, label: "Companies" },
     { to: "/newadmin", icon: FaUserShield, label: "New Admin" },
+    { to: "/regusers", icon: FaUser, label: "Users" },
     // { to: "/routes", icon: FaRoute, label: "Routes" },
   ];
 

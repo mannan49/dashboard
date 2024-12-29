@@ -65,12 +65,12 @@ const VehiclesPage = () => {
 
   return (
     <div className="content mx-2">
-      <div className="p-6 bg-main min-h-screen w-full mx-auto rounded-xl">
+      <div className="px-6 pt-4 min-h-screen w-full mx-auto rounded-xl">
         {/* Header Section */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-gray-800">Registered Buses</h1>
           <button
-            className="bg-primary text-white px-4 py-2 rounded-md shadow-sm hover:bg-primary"
+            className="bg-primary text-white px-8 py-2 rounded-full shadow-sm hover:bg-primary"
             onClick={() => navigate("/add-vehicle")}
           >
             New Bus
