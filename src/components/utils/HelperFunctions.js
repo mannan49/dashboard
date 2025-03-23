@@ -108,3 +108,67 @@ export function formatTime(inputTime) {
 
   return formattedTime;
 }
+
+export const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.toLocaleDateString("en-US", { day: "numeric" });
+  const month = date.toLocaleDateString("en-US", { month: "long" });
+  const year = date.toLocaleDateString("en-US", { year: "numeric" });
+
+  const daySuffix = (day) => {
+    const j = day % 10;
+    const k = day % 100;
+    if (j === 1 && k !== 11) return day + "st";
+    if (j === 2 && k !== 12) return day + "nd";
+    if (j === 3 && k !== 13) return day + "rd";
+    return day + "th";
+  };
+
+  return `${daySuffix(day)} ${month} ${year}`;
+};
+
+
+export function analyzeBusRoutes(buses) {
+  const fromCityCounts = {};
+  const endCityCounts = {};
+
+  // Count occurrences in startCity and endCity
+  buses.forEach((bus) => {
+    const { startCity, endCity } = bus.route;
+
+    // Count startCity
+    if (startCity) {
+      fromCityCounts[startCity] = (fromCityCounts[startCity] || 0) + 1;
+    }
+
+    // Count endCity
+    if (endCity) {
+      endCityCounts[endCity] = (endCityCounts[endCity] || 0) + 1;
+    }
+  });
+
+  // Helper function to sort and format as an array of objects
+  const sortAndFormat = (cityCounts) => {
+    return Object.entries(cityCounts)
+      .sort((a, b) => {
+        // Sort by count descending, then by name ascending
+        if (b[1] !== a[1]) {
+          return b[1] - a[1];
+        }
+        return a[0].localeCompare(b[0]);
+      })
+      .map(([name, count]) => ({ name, count }));
+  };
+
+  // Sort and format
+  const fromCities = sortAndFormat(fromCityCounts);
+  const toCities = sortAndFormat(endCityCounts);
+
+  // Return the final result
+  return {
+    citiesAnalysis: {
+      fromCities,
+      toCities,
+    },
+  };
+}

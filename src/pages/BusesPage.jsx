@@ -1,37 +1,25 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { apiBaseUrl } from "../components/apis/setting";
-import { jwtDecode } from "jwt-decode";
 import { GrUserWorker } from "react-icons/gr";
+import { useDispatch, useSelector } from "react-redux";
+import { formatDate } from "../components/utils/utilityFunctions.";
+import {
+  deleteBus,
+  fetchAdminBuses,
+  updateBus,
+} from "../store/slices/busesSlice";
 
 const BusesPage = () => {
+  const buses = useSelector((state) => state.buses.data);
+  const drivers = useSelector((state) => state.drivers.data);
   const navigate = useNavigate();
-  const [buses, setBuses] = useState([]);
-  const [drivers, setDrivers] = useState([]);
+  const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBus, setSelectedBus] = useState(null);
-  const [selectedDriver, setSelectedDriver] = useState("");
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.toLocaleDateString("en-US", { day: "numeric" });
-    const month = date.toLocaleDateString("en-US", { month: "long" });
-    const year = date.toLocaleDateString("en-US", { year: "numeric" });
-
-    const daySuffix = (day) => {
-      const j = day % 10;
-      const k = day % 100;
-      if (j === 1 && k !== 11) return day + "st";
-      if (j === 2 && k !== 12) return day + "nd";
-      if (j === 3 && k !== 13) return day + "rd";
-      return day + "th";
-    };
-
-    return `${daySuffix(day)} ${month} ${year}`;
-  };
+  const [selectedDriverId, setSelectedDriverId] = useState("");
 
   const handleEditClick = (busId) => {
     navigate(`/edit-bus/${busId}`);
@@ -39,73 +27,9 @@ const BusesPage = () => {
 
   const handleDeleteClick = (busId) => {
     if (window.confirm("Are you sure you want to delete this bus?")) {
-      deleteBus(busId);
+      dispatch(deleteBus(busId));
     }
   };
-
-  const deleteBus = async (busId) => {
-    try {
-      const response = await fetch(`${apiBaseUrl}/bus/${busId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to delete bus");
-
-      setBuses(buses.filter((bus) => bus._id !== busId));
-      toast.success("Bus deleted successfully");
-    } catch (error) {
-      console.error("Error deleting bus:", error);
-      toast.error("Failed to delete bus");
-    }
-  };
-
-  const getAllBuses = async () => {
-    try {
-      const decodedToken = jwtDecode(localStorage.getItem("token"));
-      const response = await fetch(
-        `${apiBaseUrl}/bus/ad-bus?adminId=${decodedToken?.sub}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch buses");
-      }
-
-      const data = await response.json();
-      setBuses(data);
-    } catch (error) {
-      console.error("Error fetching buses:", error);
-    }
-  };
-
-  const fetchDrivers = async () => {
-    try {
-      const decodedToken = jwtDecode(localStorage.getItem("token"));
-      const response = await fetch(
-        `${apiBaseUrl}/admin?adminId=${decodedToken?.sub}`
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch drivers");
-
-      const data = await response.json();
-      setDrivers(data);
-    } catch (error) {
-      console.error("Error fetching drivers:", error);
-    }
-  };
-
-  useEffect(() => {
-    getAllBuses();
-    fetchDrivers();
-  }, []);
 
   const handleDriverAddClick = (bus) => {
     setSelectedBus(bus);
@@ -113,26 +37,19 @@ const BusesPage = () => {
   };
 
   const handleSubmitDriver = async () => {
-    if (!selectedDriver) {
-      toast.error("Please select a driver.");
+    if (!selectedDriverId) {
+      toast.error("Please select a driver!");
       return;
     }
+    const updatedData = { ...selectedBus, driverId: selectedDriverId };
 
     try {
-      const response = await fetch(`${apiBaseUrl}/bus/${selectedBus._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ driverId: selectedDriver }),
-      });
-
-      if (!response.ok) throw new Error("Failed to assign driver");
-
+      await Promise.all([
+        dispatch(updateBus({ busId: selectedBus._id, data: updatedData })).unwrap(),
+        dispatch(fetchAdminBuses()).unwrap(),
+      ]);
       setIsModalOpen(false);
       toast.success("Driver assigned successfully!");
-      getAllBuses();
     } catch (error) {
       console.error("Error assigning driver:", error);
       toast.error("Failed to assign driver");
@@ -141,7 +58,7 @@ const BusesPage = () => {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    setSelectedDriver("");
+    setSelectedDriverId("");
   };
 
   const handleAddBusClick = () => {
@@ -216,16 +133,16 @@ const BusesPage = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+          <div className="bg-white rounded-2xl shadow-lg p-6 w-96">
             <h1 className="text-lg font-bold mb-4">
               Choose Driver for Bus#{selectedBus?.busDetails?.busNumber} going
               from {selectedBus?.route?.startCity} to{" "}
               {selectedBus?.route?.endCity}
             </h1>
             <select
-              className="w-full p-2 border rounded mb-4"
-              value={selectedDriver}
-              onChange={(e) => setSelectedDriver(e.target.value)}
+              className="w-full px-4 py-2 border rounded-full mb-4"
+              value={selectedDriverId}
+              onChange={(e) => setSelectedDriverId(e.target.value)}
             >
               <option value="">Select a driver</option>
               {drivers.map((driver) => (
@@ -236,13 +153,13 @@ const BusesPage = () => {
             </select>
             <div className="flex justify-end">
               <button
-                className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+                className="bg-gray-500 text-white px-6 py-2 rounded-full mr-2"
                 onClick={handleModalClose}
               >
                 Cancel
               </button>
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="bg-primary text-white px-6 py-2 rounded-full"
                 onClick={handleSubmitDriver}
               >
                 Submit

@@ -2,7 +2,7 @@ import React from "react";
 import Card from "./Card";
 import BarChart from "../Charts/BarChart";
 import MyRevenueLineChart from "../Charts/BumpChart";
-import CompanyTable from "./TableCompanies";
+import CompaniesTable from "./CompaniesTable";
 
 const SuperAdminDashboard = () => {
   return (
@@ -21,7 +21,7 @@ const SuperAdminDashboard = () => {
           <MyRevenueLineChart />
         </div>
         <div className="pt-4">
-          <CompanyTable />
+          <CompaniesTable />
         </div>
       </div>
     </div>

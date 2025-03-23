@@ -6,9 +6,12 @@ import { loginAdmin } from "../apis/AuthenticationApi";
 // import Loader from "../utils/Loader";
 import { useState } from "react";
 import Loader from "../utils/Loader";
+import { useDispatch } from "react-redux";
+import { initializeStore } from "../../store/initializeStore";
 
 function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +29,7 @@ function Login() {
       if (result.success) {
         const { data } = result;
         window.localStorage.setItem("token", data.token);
+        await initializeStore(dispatch);
         setIsLoading(false);
         toast.success(data.message);
         navigate("/");
