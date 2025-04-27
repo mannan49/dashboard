@@ -23,6 +23,7 @@ import DriversPage from "./pages/DriversPage";
 import DriverMapNavigation from "./components/gps/DriverMapNavigation";
 import DriverNavigationPage from "./pages/DriverNavigationPage";
 import NavigationBusesList from "./components/gps/NavigationBusesList";
+import DriversAssignedBuses from "./components/dashboard/DriversAssignedBuses";
 
 function App() {
   return (
@@ -57,8 +58,12 @@ function App() {
           <Route path="/add-bus" element={<AddBusFormPage />}></Route>
           <Route path="/edit-bus/:id" element={<AddBusFormPage />}></Route>
           <Route path="/map" element={<DriverMap />}></Route>
-          <Route path="/driver/map/:busId" element={<DriverNavigationPage />}></Route>
-          <Route path="/scanner" element={<ScannerPage />}></Route>
+          <Route
+            path="/driver/map/:busId"
+            element={<DriverNavigationPage />}
+          ></Route>
+          <Route path="/scanner" element={<DriversAssignedBuses />}></Route>
+          <Route path="/scanner/:id" element={<ScannerPage />}></Route>
           <Route path="/add-vehicle" element={<VehiclesFormPage />}></Route>
           <Route path="/add-vehicle/:id" element={<VehiclesFormPage />}></Route>
           <Route path="/add-route" element={<RouteFormPage />}></Route>
@@ -66,7 +71,7 @@ function App() {
           <Route path="/navigation" element={<NavigationBusesList />}></Route>
           <Route path="*" element={<NotFoundPage />} />
           <Route
-            path="/user/bookings/:userId"
+            path="/user/bookings/:userId/:busId"
             element={<BookingPage />}
           ></Route>
         </Route>

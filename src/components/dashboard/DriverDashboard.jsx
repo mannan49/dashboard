@@ -86,26 +86,34 @@ const DriverDashboard = () => {
     setFilter(e.target.value);
   };
 
-  const isStartDriveAvailable = (departureTime, arrivalTime) => {
+  const isStartDriveAvailable = (departureTime, arrivalTime, travelDate) => {
     const [depHours, depMinutes] = departureTime.split(":").map(Number);
     const [arrHours, arrMinutes] = arrivalTime.split(":").map(Number);
 
     const now = new Date();
+    const travel = new Date(travelDate);
 
-    // Create a Date object for the departure time
+    // Check if travel date is today
+    const isToday =
+      now.getFullYear() === travel.getFullYear() &&
+      now.getMonth() === travel.getMonth() &&
+      now.getDate() === travel.getDate();
+
+    if (!isToday) {
+      return false;
+    }
+
+    // Create Date objects for departure and arrival
     const departure = new Date();
     departure.setHours(depHours, depMinutes, 0, 0);
 
-    // Create a Date object for the arrival time
     const arrival = new Date();
     arrival.setHours(arrHours, arrMinutes, 0, 0);
 
-    // Calculate the end of the "availability window" (4 hours after arrival)
-    const availabilityEnd = new Date(arrival);
-    availabilityEnd.setHours(arrival.getHours() + 4);
+    const departureWindowStart = new Date(departure.getTime() - 30 * 60 * 1000); // 30 minutes before departure
+    const availabilityEnd = new Date(arrival.getTime() + 4 * 60 * 60 * 1000); // 4 hours after arrival
 
-    // Check if current time is within the allowed window
-    return now >= departure - 30 * 60 * 1000 && now <= availabilityEnd;
+    return now >= departureWindowStart && now <= availabilityEnd;
   };
 
   const handleStartDrive = (busId) => {
@@ -177,15 +185,18 @@ const DriverDashboard = () => {
                 <p className="text-gray-600 mb-2">
                   Fare: {bus?.fare?.actualPrice}
                 </p>
-                {filter === "Today" &&
-                  isStartDriveAvailable(bus.departureTime, bus.arrivalTime) && (
-                    <button
-                      className="bg-green-500 text-white p-2 rounded-md"
-                      onClick={() => handleStartDrive(bus._id)}
-                    >
-                      Start Drive
-                    </button>
-                  )}
+                {isStartDriveAvailable(
+                  bus?.departureTime,
+                  bus?.arrivalTime,
+                  bus?.date
+                ) && (
+                  <button
+                    className="bg-green-500 text-white p-2 rounded-md"
+                    onClick={() => handleStartDrive(bus._id)}
+                  >
+                    Start Drive
+                  </button>
+                )}
               </div>
             ))
           )}

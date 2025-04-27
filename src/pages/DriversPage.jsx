@@ -64,11 +64,13 @@ const DriversPage = () => {
   }, []);
 
   return (
-    <div className="content mx-2">
-      <div className="p-6 bg-main min-h-screen w-full mx-auto rounded-xl">
+    <div className="content mx-2 mt-2">
+      <div className="py-2 px-6  min-h-screen w-full mx-auto rounded-xl">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">Registered Drivers</h1>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Registered Drivers
+          </h1>
           <button
             className="bg-primary text-white px-4 py-2 rounded-md shadow-sm hover:bg-primary"
             onClick={() => navigate("/add-driver")}

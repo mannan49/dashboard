@@ -41,19 +41,21 @@ const PaymentPage = () => {
   }, []);
 
   // Filter payments
-  const filteredPayments = payments.filter((payment) => {
-    const matchesSearch =
-      payment.paymentId.includes(searchTerm) ||
-      payment.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.amount.toString().includes(searchTerm);
-    const matchesStatus =
-      statusFilter === "All" ||
-      (statusFilter === "Today"
-        ? new Date(payment.createdAt.$date).toDateString() ===
-          new Date().toDateString()
-        : payment.status === statusFilter);
-    return matchesSearch && matchesStatus;
-  });
+  const filteredPayments = payments
+    .filter((payment) => {
+      const matchesSearch =
+        payment?.paymentId.includes(searchTerm) ||
+        payment?.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment?.amount.toString().includes(searchTerm);
+      const matchesStatus =
+        statusFilter === "All" ||
+        (statusFilter === "Today"
+          ? new Date(payment.createdAt.$date).toDateString() ===
+            new Date().toDateString()
+          : payment.status === statusFilter);
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
   return (
     <div className="content container px-6 mt-4 w-full rounded">
@@ -91,7 +93,7 @@ const PaymentPage = () => {
           <table className="min-w-full bg-white border border-gray-300 rounded-2xl">
             <thead>
               <tr className="bg-gray-100 text-center">
-                <th className="p-4 border">Payment ID</th>
+                <th className="p-4 border">Transaction ID</th>
                 <th className="p-4 border">User</th>
                 <th className="p-4 border">Amount</th>
                 <th className="p-4 border">Status</th>
@@ -101,9 +103,15 @@ const PaymentPage = () => {
             <tbody>
               {filteredPayments.map((payment) => (
                 <tr key={payment.paymentId} className="hover:bg-gray-50">
-                  <td className="p-4 border">{payment.paymentId}</td>
-                  <td className="p-4 border">{payment.userId}</td>
-                  <td className="p-4 border">Rs. {payment.amount}</td>
+                  <td className="p-4 border text-center">
+                    {payment?.paymentId}
+                  </td>
+                  <td className="p-4 border text-center">
+                    {payment?.userName ?? payment?.userId}
+                  </td>
+                  <td className="p-4 border text-center">
+                    Rs. {payment?.amount}
+                  </td>
                   <td
                     className={`p-4 border  text-center ${
                       payment.status === "succeeded"

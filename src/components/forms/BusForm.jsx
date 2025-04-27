@@ -4,6 +4,8 @@ import { apiBaseUrl } from "../apis/setting";
 import Loader from "../utils/Loader";
 import { jwtDecode } from "jwt-decode";
 import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { fetchAdminBuses } from "../../store/slices/busesSlice";
 
 function BusForm() {
   const [loading, setLoading] = useState(false);
@@ -11,6 +13,7 @@ function BusForm() {
   const [busId, setBusId] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [buses, setBuses] = useState([]);
+  const dispatch = useDispatch();
 
   const { id } = useParams();
 
@@ -158,6 +161,8 @@ function BusForm() {
       if (!response.ok) {
         throw new Error(data.message || "Failed to save bus");
       }
+
+      dispatch(fetchAdminBuses());
 
       toast.success(
         data.message ||

@@ -10,9 +10,10 @@ import {
 } from "./HelperFunctions";
 import { useParams } from "react-router-dom";
 import { apiBaseUrl } from "../apis/setting";
+import axios from "axios";
 
 const TicketCard = () => {
-  const { userId } = useParams();
+  const { userId, busId } = useParams();
   const [ticketInfo, setTicketInfo] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,10 +21,13 @@ const TicketCard = () => {
   useEffect(() => {
     const fetchTicketInformation = async () => {
       try {
-        const response = await fetch(
-          `${apiBaseUrl}/ticket/user/information/${userId}`,
+        const response = await axios.post(
+          `${apiBaseUrl}/ticket/user/information`,
           {
-            method: "GET",
+            userId: userId,
+            busId: busId,
+          },
+          {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -31,12 +35,7 @@ const TicketCard = () => {
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setTicketInfo(data);
+        setTicketInfo(response?.data);
       } catch (err) {
         setError(err.message);
       } finally {

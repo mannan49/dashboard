@@ -68,7 +68,7 @@ const BusRoutes = () => {
 
   return (
     <div className="content mx-2">
-      <div className="p-6 bg-main min-h-screen w-full mx-auto rounded-xl">
+      <div className="p-6  min-h-screen w-full mx-auto rounded-xl">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">Routes</h1>

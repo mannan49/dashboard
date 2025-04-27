@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -45,10 +45,13 @@ const BusesPage = () => {
 
     try {
       await Promise.all([
-        dispatch(updateBus({ busId: selectedBus._id, data: updatedData })).unwrap(),
+        dispatch(
+          updateBus({ busId: selectedBus._id, data: updatedData })
+        ).unwrap(),
         dispatch(fetchAdminBuses()).unwrap(),
       ]);
       setIsModalOpen(false);
+      dispatch(fetchAdminBuses());
       toast.success("Driver assigned successfully!");
     } catch (error) {
       console.error("Error assigning driver:", error);
@@ -80,54 +83,67 @@ const BusesPage = () => {
 
       {/* Bus Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {buses.map((bus) => (
-          <div
-            key={bus._id}
-            className="bg-white rounded-xl shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl"
-          >
-            <p className="text-gray-600 mb-2 app-btn text-center">
-              {bus?.route?.startCity + " to " + bus?.route?.endCity}
-            </p>
-            <p className="text-gray-600 mb-2">{formatDate(bus?.date)}</p>
-            <p className="text-gray-600 mb-2">
-              Time: {bus?.departureTime + " to " + bus?.arrivalTime}
-            </p>
-            <p className="text-gray-600 mb-2">
-              Total Seats: {bus?.busDetails?.busCapacity}
-            </p>
-            <p className="text-gray-600 mb-2">
-              Details: {bus?.busDetails?.busNumber}
-            </p>
-            <p className="text-gray-600 mb-2">Fare: {bus?.fare?.actualPrice}</p>
-            <div className="mt-4 flex justify-between">
-              <button
-                className="bg-green-800 text-white px-8 py-2 rounded-full flex items-center"
-                onClick={() => handleEditClick(bus._id)}
-              >
-                <FaEdit className="mr-2" />
-                Edit
-              </button>
-              <button
-                className="bg-red-700 text-white py-2 px-8 rounded-full hover:bg-red-500 flex items-center"
-                onClick={() => handleDeleteClick(bus._id)}
-              >
-                <FaTrashAlt className="mr-2" />
-                Delete
-              </button>
+        {/* Here I want to map only those buses having bus.date of today or future */}
+        {buses
+          .filter((bus) => {
+            const busDate = new Date(bus.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            busDate.setHours(0, 0, 0, 0);
+            return busDate >= today;
+          })
+          .map((bus) => (
+            <div
+              key={bus._id}
+              className="bg-white rounded-xl shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl"
+            >
+              <p className="text-gray-600 mb-2 app-btn text-center">
+                {bus?.route?.startCity + " to " + bus?.route?.endCity}
+              </p>
+              <p className="text-gray-600 mb-2">{formatDate(bus?.date)}</p>
+              <p className="text-gray-600 mb-2">
+                Time: {bus?.departureTime + " to " + bus?.arrivalTime}
+              </p>
+              <p className="text-gray-600 mb-2">
+                Total Seats: {bus?.busDetails?.busCapacity}
+              </p>
+              <p className="text-gray-600 mb-2">
+                Details: {bus?.busDetails?.busNumber}
+              </p>
+              <p className="text-gray-600 mb-2">
+                Fare: {bus?.fare?.actualPrice}
+              </p>
+              <div className="mt-4 flex justify-between">
+                <button
+                  className="bg-green-800 text-white px-8 py-2 rounded-full flex items-center"
+                  onClick={() => handleEditClick(bus._id)}
+                >
+                  <FaEdit className="mr-2" />
+                  Edit
+                </button>
+                <button
+                  className="bg-red-700 text-white py-2 px-8 rounded-full hover:bg-red-500 flex items-center"
+                  onClick={() => handleDeleteClick(bus._id)}
+                >
+                  <FaTrashAlt className="mr-2" />
+                  Delete
+                </button>
+              </div>
+              <div className="mt-4 flex justify-between">
+                <button
+                  className={`${`px-4 py-2 text-white w-full rounded-full flex justify-center items-center gap-2`} ${
+                    bus.driverId ? "bg-green-700" : "bg-gray-500"
+                  }`}
+                  onClick={() => handleDriverAddClick(bus)}
+                >
+                  {bus.driverId
+                    ? `Assigned to ${bus?.driverName}`
+                    : "Add a Driver"}
+                  <GrUserWorker className="mr-2" />
+                </button>
+              </div>
             </div>
-            <div className="mt-4 flex justify-between">
-              <button
-                className={`${`px-4 py-2 text-white w-full rounded-full flex justify-center items-center gap-2`} ${
-                  bus.driverId ? "bg-green-700" : "bg-gray-500"
-                }`}
-                onClick={() => handleDriverAddClick(bus)}
-              >
-                {bus.driverId ? "Driver Assigned" : "Add a Driver"}
-                <GrUserWorker className="mr-2" />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {/* Modal */}

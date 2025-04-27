@@ -11,7 +11,7 @@ const CompaniesTable = () => {
     try {
       const response = await axios.get(`${apiBaseUrl}/admin/admins-analytics`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Fixed typo
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       setAdminsDataAnalytics(response.data.data);
@@ -57,7 +57,7 @@ const CompaniesTable = () => {
             </tr>
           </thead>
           <tbody>
-            {adminsDataAnalytics.map((company, index) => (
+            {adminsDataAnalytics?.map((company, index) => (
               <tr key={index} className="border-b border-gray-300">
                 <td className="py-3 px-4 text-gray-700">{company.adminName}</td>
                 <td className="py-3 px-4 text-gray-700 text-center">

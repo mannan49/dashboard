@@ -1,41 +1,40 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { RiRfidLine } from "react-icons/ri";
 import toast from "react-hot-toast";
 import ScannerAnimation from "../components/utils/ScannerAnimation";
 import { apiBaseUrl } from "../components/apis/setting";
+import axios from "axios";
 
 const ScannerPage = () => {
   const navigate = useNavigate();
+  const { id: busId } = useParams();
 
-  // Function to handle the RFID scan and navigate
   const handleScan = async (scannedRFID) => {
     try {
-      const response = await fetch(`${apiBaseUrl}/ticket/user/information`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ RFIDCardNumber: scannedRFID }),
-      });
+      const response = await axios.post(
+        `${apiBaseUrl}/ticket/user/information`,
+        {
+          RFIDCardNumber: scannedRFID,
+          busId,
+        }
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch user details. Please try again.");
-      }
+      const data = response.data;
 
-      const data = await response.json();
-      const userId = data?.[0]?.userId; // Ensure the backend returns `userId`
+      const userId = data?.[0]?.userId;
       if (!userId) {
         throw new Error("Invalid user data received from server.");
       }
 
-      // Navigate to the bookings page
       toast.success("Card scanned successfully!");
-      navigate(`/user/bookings/${userId}`);
+      navigate(`/user/bookings/${userId}/${busId}`);
     } catch (error) {
-      toast.error(
-        error.message || "An error occurred while scanning the card."
-      );
+      const apiMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong.";
+      toast.error(apiMessage);
     }
   };
 

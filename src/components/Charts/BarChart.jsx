@@ -4,16 +4,27 @@ import { analyzeBusRoutes } from "../utils/HelperFunctions";
 import { useSelector } from "react-redux";
 import Loader from "../utils/Loader";
 
-const BarChart = () => {
+const BarChart = ({ showFromCities = true, title = "Cities" }) => {
   const buses = useSelector((state) => state.buses.data);
 
   if (!buses || buses.length === 0) {
     return <Loader />;
   }
 
-  const fromCities = analyzeBusRoutes(buses).citiesAnalysis.fromCities;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const topCities = fromCities.slice(0, 4);
+  const upcomingBuses = buses.filter((bus) => {
+    const busDate = new Date(bus.date);
+    return busDate >= today;
+  });
+
+  const routeAnalysis = analyzeBusRoutes(upcomingBuses ?? []);
+  const selectedCities = showFromCities
+    ? routeAnalysis?.citiesAnalysis?.fromCities
+    : routeAnalysis?.citiesAnalysis?.toCities;
+
+  const topCities = selectedCities.slice(0, 4);
 
   // Generate data array for the chart
   const data = topCities.map((city) => ({
@@ -46,7 +57,7 @@ const BarChart = () => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: "Cities",
+          legend: title,
           legendPosition: "middle",
           legendOffset: 32,
         }}
