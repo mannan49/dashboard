@@ -86,9 +86,8 @@ const DriverDashboard = () => {
     setFilter(e.target.value);
   };
 
-  const isStartDriveAvailable = (departureTime, arrivalTime, travelDate) => {
+  const isStartDriveAvailable = (departureTime, travelDate) => {
     const [depHours, depMinutes] = departureTime.split(":").map(Number);
-    const [arrHours, arrMinutes] = arrivalTime.split(":").map(Number);
 
     const now = new Date();
     const travel = new Date(travelDate);
@@ -103,17 +102,15 @@ const DriverDashboard = () => {
       return false;
     }
 
-    // Create Date objects for departure and arrival
+    // Create a Date object for departure time
     const departure = new Date();
     departure.setHours(depHours, depMinutes, 0, 0);
 
-    const arrival = new Date();
-    arrival.setHours(arrHours, arrMinutes, 0, 0);
+    // Define the window: 30 minutes before and after departure
+    const windowStart = new Date(departure.getTime() - 30 * 60 * 1000);
+    const windowEnd = new Date(departure.getTime() + 30 * 60 * 1000);
 
-    const departureWindowStart = new Date(departure.getTime() - 30 * 60 * 1000); // 30 minutes before departure
-    const availabilityEnd = new Date(arrival.getTime() + 4 * 60 * 60 * 1000); // 4 hours after arrival
-
-    return now >= departureWindowStart && now <= availabilityEnd;
+    return now >= windowStart && now <= windowEnd;
   };
 
   const handleStartDrive = (busId) => {
@@ -185,11 +182,7 @@ const DriverDashboard = () => {
                 <p className="text-gray-600 mb-2">
                   Fare: {bus?.fare?.actualPrice}
                 </p>
-                {isStartDriveAvailable(
-                  bus?.departureTime,
-                  bus?.arrivalTime,
-                  bus?.date
-                ) && (
+                {isStartDriveAvailable(bus?.departureTime, bus?.date) && (
                   <button
                     className="bg-green-500 text-white p-2 rounded-md"
                     onClick={() => handleStartDrive(bus._id)}

@@ -12,7 +12,6 @@ const DashboardContent = () => {
     const decodedToken = jwtDecode(token);
     role = decodedToken.role;
     role = role.trim().toLowerCase();
-    console.log(role);
   }
 
   if (role === "admin") {

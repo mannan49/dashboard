@@ -30,13 +30,13 @@ function DriverRegistration() {
 
           if (response.ok) {
             setFormData({
-              name: data.name,
-              email: data.email,
+              name: data?.driver?.name,
+              email: data?.driver?.email,
               password: "Password123!",
-              companyId: data.companyId || "",
-              cnicNumber: data.cnicNumber || "",
-              phoneNumber: data.phoneNumber || "",
-              dob: data.dob || "",
+              companyId: data?.driver?.companyId || "",
+              cnicNumber: data?.driver?.cnicNumber || "",
+              phoneNumber: data?.driver?.phoneNumber || "",
+              dob: data?.driver?.dob ? data.driver.dob.split("T")[0] : "",
             });
           } else {
             toast.error("Driver data not found");
@@ -65,7 +65,7 @@ function DriverRegistration() {
       const method = id ? "PUT" : "POST";
       const url = id
         ? `${apiBaseUrl}/driver/${id}`
-        : `${apiBaseUrl}/admin/register`;
+        : `${apiBaseUrl}/driver/add`;
 
       const response = await fetch(url, {
         method: method,
@@ -81,6 +81,7 @@ function DriverRegistration() {
           dob: formData.dob,
           cnicNumber: formData.cnicNumber,
           phoneNumber: formData.phoneNumber,
+          role: "driver",
         }),
       });
 
@@ -132,7 +133,7 @@ function DriverRegistration() {
             id="full-name"
             className="border-ternary_light w-full border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
             name="name"
-            value={formData.name}
+            value={formData?.name}
             onChange={handleChange}
             required
           />
@@ -149,16 +150,16 @@ function DriverRegistration() {
             name="email"
             required
             placeholder="Enter Your E-mail"
-            value={formData.email}
+            value={formData?.email}
             onChange={handleChange}
           />
         </div>
 
-        <div className="mb-1 flex flex-col">
-          <label htmlFor="password" className="font-bold text-lg">
-            Password :
-          </label>
-          {!id && (
+        {!id && (
+          <div className="mb-1 flex flex-col">
+            <label htmlFor="password" className="font-bold text-lg">
+              Password :
+            </label>
             <input
               className="border-ternary_light border-solid border-2 rounded-full px-4 py-1 focus:border-primary focus:outline-none"
               type="password"
@@ -168,8 +169,8 @@ function DriverRegistration() {
               value={formData.password}
               onChange={handleChange}
             />
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="mb-1 flex flex-col">
           <label htmlFor="dob" className="font-bold text-lg">
