@@ -86,23 +86,26 @@ const BusRoutes = () => {
               className="bg-white rounded-lg shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl"
             >
               <div className="app-btn flex justify-center items-center mb-2 w-full">
-                <p className="text-white">{route.startCity}</p>
+                <p className="text-white">{route?.startCity}</p>
                 <CgArrowLongRightC className="mx-1 text-3xl" />
-                <p className="text-white">{route.endCity}</p>
+                <p className="text-white">{route?.endCity}</p>
               </div>
               {/* <p className="text-gray-600 mb-2 app-btn text-center">
                 {route.startCity + <CgArrowLongRightC /> + route.endCity}
               </p> */}
-              <p>Total Stops: {route.stops.length}</p>
+              <p>Total Stops: {route?.stops?.length - 2}</p>
               {route.stops.map((stop, index) => (
                 <div key={index}>
                   <p>
                     {getOrdinal(index + 1)} Stop : {stop?.name}
                   </p>
-                  <p className="flex items-center justify-center">
-                    <ImStopwatch />
-                    Duration : {stop?.duration} minutes
-                  </p>
+                  <p>Address : {stop?.formattedAddress}</p>
+                  {stop?.duration && (
+                    <p className="flex items-center justify-center">
+                      <ImStopwatch />
+                      Duration : {stop?.duration} minutes
+                    </p>
+                  )}
                   <p className="flex items-center justify-center">
                     <FaLocationDot /> Location :{" "}
                     <a

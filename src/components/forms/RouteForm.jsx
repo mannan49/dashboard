@@ -242,7 +242,7 @@ function RouteForm() {
 
           {/* Optional Stops */}
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-bold text-lg">Mid City Stops</h3>
+            <h3 className="font-bold text-lg">Inter City Stops</h3>
 
             <button
               type="button"

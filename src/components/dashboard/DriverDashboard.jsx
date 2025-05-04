@@ -182,14 +182,20 @@ const DriverDashboard = () => {
                 <p className="text-gray-600 mb-2">
                   Fare: {bus?.fare?.actualPrice}
                 </p>
-                {isStartDriveAvailable(bus?.departureTime, bus?.date) && (
+                <button
+                  className="bg-green-500 text-white p-2 rounded-md"
+                  onClick={() => handleStartDrive(bus._id)}
+                >
+                  Start Drive
+                </button>
+                {/* {isStartDriveAvailable(bus?.departureTime, bus?.date) && (
                   <button
                     className="bg-green-500 text-white p-2 rounded-md"
                     onClick={() => handleStartDrive(bus._id)}
                   >
                     Start Drive
                   </button>
-                )}
+                )} */}
               </div>
             ))
           )}

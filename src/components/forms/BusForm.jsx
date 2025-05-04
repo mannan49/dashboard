@@ -159,7 +159,7 @@ function BusForm() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to save bus");
+        throw new Error(data?.errors?.[0]?.msg || "Failed to save bus");
       }
 
       dispatch(fetchAdminBuses());
@@ -219,8 +219,12 @@ function BusForm() {
             </option>
             {routes.map((route) => (
               <option key={route.id} value={route._id}>
-                {route.startCity} to {route.endCity} ({route.stops.length}{" "}
-                stops)
+                {route.startCity} to {route.endCity} ( Stops:{""}{" "}
+                {route?.stops
+                  ?.slice(1, -1)
+                  .map((stop) => stop.name)
+                  .join(", ") || "Non-stop"}
+                )
               </option>
             ))}
           </select>
@@ -306,13 +310,13 @@ function BusForm() {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="w-full">
           <div className="mb-4">
             <label
               htmlFor="actualPrice"
               className="block text-xl font-semibold mb-2"
             >
-              Price:
+              Price(In PKR):
             </label>
             <input
               type="number"
@@ -323,38 +327,6 @@ function BusForm() {
                 handleNestedInputChange(e, "fare", "actualPrice")
               }
               required
-              className="border rounded-lg h-9 p-2 w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="discount"
-              className="block text-xl font-semibold mb-2"
-            >
-              Discount:
-            </label>
-            <input
-              type="number"
-              id="discount"
-              name="discount"
-              value={formData.fare.discount}
-              onChange={(e) => handleNestedInputChange(e, "fare", "discount")}
-              className="border rounded-lg h-9 p-2 w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="promoCode"
-              className="block text-xl font-semibold mb-2"
-            >
-              Promo Code:
-            </label>
-            <input
-              type="text"
-              id="promoCode"
-              name="promoCode"
-              value={formData.fare.promoCode}
-              onChange={(e) => handleNestedInputChange(e, "fare", "promoCode")}
               className="border rounded-lg h-9 p-2 w-full"
             />
           </div>
