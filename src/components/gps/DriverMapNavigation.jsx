@@ -1,17 +1,14 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import {
   GoogleMap,
   DirectionsRenderer,
+  Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import axios from "axios";
 import { useParams } from "react-router-dom";
-import LocationDemographics from "./LocationDemographics";
-import { BiSolidEditLocation } from "react-icons/bi";
-import { apiBaseUrl } from "../apis/setting";
-import Loader from "../utils/Loader";
 import { jwtDecode } from "jwt-decode";
+import Loader from "../utils/Loader";
+import { apiBaseUrl } from "../apis/setting";
 
 const containerStyle = {
   width: "100%",
@@ -22,7 +19,6 @@ const DriverMapNavigation = () => {
   const { busId } = useParams();
 
   const [userLocation, setUserLocation] = useState(null);
-  const [destinationCoords, setDestinationCoords] = useState(null);
   const [directionsResponse, setDirectionsResponse] = useState(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
@@ -33,12 +29,11 @@ const DriverMapNavigation = () => {
     libraries: ["places"],
   });
 
-  // Function to update driver's location in the backend
   const updateDriverLocation = async (latitude, longitude) => {
     try {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
-      const response = await fetch(`${apiBaseUrl}/location/update`, {
+      await fetch(`${apiBaseUrl}/location/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,16 +46,11 @@ const DriverMapNavigation = () => {
           longitude,
         }),
       });
-
-      if (!response.ok) {
-        console.error("Failed to update driver location");
-      }
     } catch (error) {
-      console.error("Error updating driver location:", error);
+      console.error("❌ Error updating driver location:", error);
     }
   };
 
-  // Function to fetch bus data
   const fetchBusData = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -70,53 +60,22 @@ const DriverMapNavigation = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          _id: busId,
-        }),
+        body: JSON.stringify({ _id: busId }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch buses");
-      }
-
       const data = await response.json();
-      setBusData(data.data[0]);
+      console.log("✅ Bus data response:", data);
+      if (data.data && data.data.length > 0) {
+        setBusData(data.data[0]);
+      } else {
+        console.warn("⚠️ No bus data returned");
+      }
     } catch (error) {
-      console.error("Error fetching driver's buses:", error);
+      console.error("❌ Error fetching bus data:", error);
     }
   };
 
-  // Fetch bus data on component mount
-  useEffect(() => {
-    fetchBusData();
-  }, []);
-
-  // Fetch destination coordinates once bus data is available
-  useEffect(() => {
-    if (busData) {
-      const fetchDestinationCoords = async () => {
-        try {
-          const { data } = await axios.get(
-            `https://maps.googleapis.com/maps/api/geocode/json`,
-            {
-              params: {
-                address: `${busData.route.endCity}`,
-                key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-              },
-            }
-          );
-          const location = data.results[0]?.geometry.location;
-          setDestinationCoords(location);
-        } catch (error) {
-          console.error("Error fetching destination coordinates:", error);
-        }
-      };
-
-      fetchDestinationCoords();
-    }
-  }, [busData]);
-
-  // Geolocation watcher to track location in real time
+  // Watch geolocation
   useEffect(() => {
     let watchId;
 
@@ -124,111 +83,192 @@ const DriverMapNavigation = () => {
       watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude }); // Update user's location
-          updateDriverLocation(latitude, longitude); // Send location to the backend
+          const current = { lat: latitude, lng: longitude };
+          setUserLocation(current);
+          updateDriverLocation(latitude, longitude);
+
+          // 👇 Recalculate route when driver moves
+          calculateRoute(current);
         },
-        (error) => {
-          console.error("Error getting user location:", error);
-        },
+        (error) => console.error("Geolocation error:", error),
         { enableHighAccuracy: true }
       );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
     }
 
     return () => {
-      if (watchId) {
-        navigator.geolocation.clearWatch(watchId); // Cleanup on unmount
-      }
+      if (watchId) navigator.geolocation.clearWatch(watchId);
     };
   }, []);
 
-  // Calculate the route once both userLocation and destinationCoords are ready
-  useEffect(() => {
-    if (userLocation && destinationCoords) {
-      const calculateRoute = async () => {
-        try {
-          const directionsService = new window.google.maps.DirectionsService();
-          const results = await directionsService.route({
-            origin: userLocation,
-            destination: destinationCoords,
-            travelMode: window.google.maps.TravelMode.DRIVING,
-          });
-          setDirectionsResponse(results);
-          setDistance(results.routes[0].legs[0].distance.text);
-          setDuration(results.routes[0].legs[0].duration.text);
-        } catch (error) {
-          console.error("Error calculating route:", error);
-        }
-      };
+  const calculateRoute = async (currentLocation = userLocation) => {
+    if (!busData || !busData.route?.stops?.length || !currentLocation) return;
 
-      calculateRoute();
-    }
-  }, [userLocation, destinationCoords]);
+    const directionsService = new window.google.maps.DirectionsService();
+    const stops = busData.route.stops;
 
-  // Handle destination change
-  const handleSelectDestination = async (stopName) => {
+    const origin = currentLocation;
+    const destination = {
+      lat: stops[stops.length - 1].geometry.location.lat,
+      lng: stops[stops.length - 1].geometry.location.lng,
+    };
+
+    const waypoints = stops.slice(1, -1).map((stop) => ({
+      location: {
+        lat: stop.geometry.location.lat,
+        lng: stop.geometry.location.lng,
+      },
+      stopover: true,
+    }));
+
     try {
-      const { data } = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json`,
-        {
-          params: {
-            address: stopName,
-            key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-          },
-        }
-      );
-      const location = data.results[0]?.geometry.location;
-      setDestinationCoords(location);
+      const result = await directionsService.route({
+        origin,
+        destination,
+        waypoints,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: true,
+      });
+
+      setDirectionsResponse(result);
+
+      const routeLegs = result.routes[0].legs;
+      let totalDistance = 0;
+      let totalDuration = 0;
+
+      routeLegs.forEach((leg) => {
+        totalDistance += leg.distance.value;
+        totalDuration += leg.duration.value;
+      });
+
+      setDistance((totalDistance / 1000).toFixed(2) + " km");
+      setDuration(Math.ceil(totalDuration / 60) + " mins");
     } catch (error) {
-      console.error("Error fetching stop coordinates:", error);
+      console.error("Directions request failed:", error);
     }
   };
 
-  if (!isLoaded)
-    return (
-      <div>
-        <Loader />
-      </div>
-    );
+  useEffect(() => {
+    fetchBusData();
+  }, []);
+
+  // Routing logic
+  useEffect(() => {
+    const calculateRoute = async () => {
+      if (!busData || !busData.route?.stops?.length) {
+        console.warn("⛔ No busData or stops to calculate route");
+        return;
+      }
+
+      const stops = busData.route.stops;
+      console.log("📌 Bus stops:", stops);
+
+      const firstStop = stops[0]?.geometry?.location;
+      const lastStop = stops[stops.length - 1]?.geometry?.location;
+
+      if (!firstStop || !lastStop) {
+        console.warn("⚠️ Missing coordinates for first/last stop");
+        return;
+      }
+
+      const origin = userLocation || {
+        lat: firstStop.lat,
+        lng: firstStop.lng,
+      };
+
+      const destination = {
+        lat: lastStop.lat,
+        lng: lastStop.lng,
+      };
+
+      const waypoints = stops
+        .slice(1, -1)
+        .map((stop, idx) => {
+          const loc = stop.geometry?.location;
+          if (loc?.lat && loc?.lng) {
+            return {
+              location: { lat: loc.lat, lng: loc.lng },
+              stopover: true,
+            };
+          } else {
+            console.warn(`⚠️ Missing location for stop ${idx}:`, stop);
+            return null;
+          }
+        })
+        .filter(Boolean);
+
+      console.log("🧭 Routing info →");
+      console.log("   Origin:", origin);
+      console.log("   Destination:", destination);
+      console.log("   Waypoints:", waypoints);
+
+      try {
+        const directionsService = new window.google.maps.DirectionsService();
+        const result = await directionsService.route({
+          origin,
+          destination,
+          waypoints,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+          optimizeWaypoints: false,
+        });
+
+        console.log("✅ Directions API result:", result);
+        setDirectionsResponse(result);
+
+        let totalDistance = 0;
+        let totalDuration = 0;
+
+        result.routes[0].legs.forEach((leg, i) => {
+          console.log(`📏 Leg ${i + 1} distance:`, leg.distance?.text);
+          totalDistance += leg.distance.value;
+          totalDuration += leg.duration.value;
+        });
+
+        setDistance((totalDistance / 1000).toFixed(2) + " km");
+        setDuration(Math.ceil(totalDuration / 60) + " mins");
+      } catch (error) {
+        console.error("❌ Directions API error:", error);
+      }
+    };
+
+    if (isLoaded) {
+      calculateRoute();
+    }
+  }, [busData, userLocation, isLoaded]);
+
+  if (!isLoaded) return <Loader />;
 
   return (
     <div className="w-full py-10">
       <GoogleMap
         mapContainerStyle={containerStyle}
-        zoom={15}
-        center={userLocation || destinationCoords}
+        center={userLocation || { lat: 30.1575, lng: 71.5249 }}
+        zoom={10}
       >
         {directionsResponse && (
           <DirectionsRenderer directions={directionsResponse} />
         )}
+
+        {userLocation && (
+          <Marker
+            position={userLocation}
+            icon={{
+              url: "/bus-icon.png",
+              scaledSize: new window.google.maps.Size(40, 40),
+            }}
+          />
+        )}
       </GoogleMap>
 
-      <LocationDemographics distance={distance} duration={duration} />
-
-      <div>
-        <h3 className="text-center text-xl font-semibold flex justify-center items-center gap-1">
-          Switch Destination <BiSolidEditLocation className="text-2xl" />
-        </h3>
-
-        {busData?.route.stops.map((stop, index) => (
-          <div
-            key={index}
-            className="bg-white flex justify-between items-center px-4 py-2 rounded-xl gap-4 mb-6"
-          >
-            <p>
-              Stop {index + 1}: {stop.name}
-            </p>
-            <p>Duration: {stop.duration} minutes</p>
-            <button
-              onClick={() => handleSelectDestination(stop.name)}
-              className="bg-primary text-white px-4 py-1 rounded-full"
-            >
-              Select Route
-            </button>
-          </div>
-        ))}
-      </div>
+      {distance && duration && (
+        <div className="text-center mt-4">
+          <p>
+            Total Distance: <strong>{distance}</strong>
+          </p>
+          <p>
+            Estimated Duration: <strong>{duration}</strong>
+          </p>
+        </div>
+      )}
     </div>
   );
 };

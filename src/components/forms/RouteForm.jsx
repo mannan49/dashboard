@@ -6,21 +6,42 @@ import { jwtDecode } from "jwt-decode";
 import { pakistanCities } from "../utils/data";
 import { FaCircleMinus, FaCirclePlus } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
+import { fetchBusStops } from "../apis/GoogleMapsApi";
+import StopSelector from "./StopSelector";
 
 function RouteForm() {
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [routeId, setRouteId] = useState(null);
+  const [availableStops, setAvailableStops] = useState([]);
   const [formData, setFormData] = useState({
     startCity: "",
     endCity: "",
-    stops: [{ name: "", locationLink: "", duration: "" }],
+    stops: [
+      {
+        name: "",
+        locationLink: "",
+        duration: "",
+        formattedAddress: "",
+        placeId: "",
+        geometry: null,
+      },
+      {
+        name: "",
+        locationLink: "",
+        duration: "",
+        formattedAddress: "",
+        placeId: "",
+        geometry: null,
+      },
+    ],
   });
 
   const { id } = useParams();
   const cityOptions = Object.keys(pakistanCities);
 
   const getAllStops = () => {
+    // function to get hard coded stops from a hard coded object
     return Object.values(pakistanCities).flatMap((city) => city.busStops);
   };
 
@@ -32,6 +53,17 @@ function RouteForm() {
       fetchRouteData(id);
     }
   }, [id]);
+
+  const loadStops = async (city) => {
+    if (city) {
+      try {
+        const stops = await fetchBusStops(formData.startCity);
+        setAvailableStops(stops);
+      } catch (error) {
+        toast.error("Could not load stops from Google Maps.");
+      }
+    }
+  };
 
   const fetchRouteData = async (routeId) => {
     setLoading(true);
@@ -64,7 +96,18 @@ function RouteForm() {
   const handleAddStop = () => {
     setFormData((prevState) => ({
       ...prevState,
-      stops: [...prevState.stops, { name: "", locationLink: "", duration: "" }],
+      stops: [
+        ...prevState.stops,
+        {
+          name: "",
+          locationLink: "",
+          duration: "",
+          city: "",
+          formattedAddress: "",
+          placeId: "",
+          geometry: null,
+        },
+      ],
     }));
   };
 
@@ -180,59 +223,143 @@ function RouteForm() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-xl font-semibold mb-2">Stops:</label>
-          {formData.stops.map((stop, index) => {
-            const allStops = getAllStops();
-            return (
-              <div key={index} className="mb-2 grid grid-cols-3">
-                {/* Stop Name */}
-                <select
-                  value={stop.name}
-                  onChange={(e) => {
-                    const selectedStop = allStops.find(
-                      (s) => s.name === e.target.value
-                    );
-                    const stops = [...formData.stops];
-                    stops[index].name = selectedStop?.name || "";
-                    stops[index].locationLink = selectedStop?.link || "";
-                    setFormData({ ...formData, stops });
-                  }}
-                  required
-                  className="border rounded-lg h-9 px-2 mr-2"
-                >
-                  <option value="">Select Stop</option>
-                  {allStops.map((stop) => (
-                    <option key={stop.name} value={stop.name}>
-                      {stop.name}
-                    </option>
-                  ))}
-                </select>
+          {/* Departure Stop */}
+          <h3 className="font-bold text-lg mb-2">Departure Stand</h3>
+          <StopSelector
+            stop={formData.stops[0]}
+            index={0}
+            city={formData.startCity}
+            updateStop={(newStop) => {
+              const newStops = [...formData.stops];
+              newStops[0] = {
+                ...newStops[0],
+                ...newStop,
+                city: formData.startCity,
+              };
+              setFormData({ ...formData, stops: newStops });
+            }}
+          />
 
-                {/* Time Duration */}
-                <input
-                  type="number"
-                  placeholder="Duration (mins)"
-                  value={stop.duration}
-                  onChange={(e) => {
-                    const stops = [...formData.stops];
-                    stops[index].duration = e.target.value;
-                    setFormData({ ...formData, stops });
+          {/* Optional Stops */}
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="font-bold text-lg">Mid City Stops</h3>
+
+            <button
+              type="button"
+              className="text-green-700 font-bold text-lg"
+              onClick={() => {
+                const newStops = [...formData.stops];
+                newStops.splice(-1, 0, {
+                  name: "",
+                  locationLink: "",
+                  city: "",
+                  duration: "",
+                });
+                setFormData({ ...formData, stops: newStops });
+              }}
+            >
+              <FaCirclePlus />
+            </button>
+          </div>
+          {/* Mid-City Stops */}
+          {formData.stops
+            .slice(1, -1)
+            .filter((stop) => !stop.isMotorway) // <-- filter out motorway stops
+            .map((stop, i) => {
+              const actualIndex = formData.stops.findIndex((s) => s === stop);
+              return (
+                <StopSelector
+                  key={`mid-${actualIndex}`} // unique key
+                  stop={stop}
+                  index={actualIndex}
+                  city={stop.city}
+                  isOptional
+                  updateStop={(newStop) => {
+                    const newStops = [...formData.stops];
+                    newStops[actualIndex] = {
+                      ...newStops[actualIndex],
+                      ...newStop,
+                    };
+                    setFormData({ ...formData, stops: newStops });
                   }}
-                  className="border rounded-lg h-9 px-4 mr-2"
+                  removeStop={() => {
+                    const newStops = [...formData.stops];
+                    newStops.splice(actualIndex, 1);
+                    setFormData({ ...formData, stops: newStops });
+                  }}
                 />
+              );
+            })}
 
-                <div className="flex justify-center items-center gap-2">
-                  <button type="button" onClick={handleAddStop}>
-                    <FaCirclePlus className="text-green-700 text-2xl" />
-                  </button>
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="font-bold text-lg">Motorway Stops</h3>
 
-                  <button type="button" onClick={() => handleRemoveStop(index)}>
-                    <FaCircleMinus className="text-red-700 text-2xl" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+            <button
+              type="button"
+              className="text-green-700 font-bold text-lg"
+              onClick={() => {
+                const newStops = [...formData.stops];
+                newStops.splice(-1, 0, {
+                  name: "",
+                  locationLink: "",
+                  city: "",
+                  duration: "",
+                  isMotorway: true,
+                });
+                setFormData({ ...formData, stops: newStops });
+              }}
+            >
+              <FaCirclePlus />
+            </button>
+          </div>
+          {/* Optional Motorway Stops */}
+          {/* Motorway Stops */}
+          {formData.stops
+            .slice(1, -1)
+            .filter((stop) => stop.isMotorway)
+            .map((stop, i) => {
+              const actualIndex = formData.stops.findIndex((s) => s === stop);
+              return (
+                <StopSelector
+                  key={`motorway-${actualIndex}`} // unique key
+                  stop={stop}
+                  index={actualIndex}
+                  city={stop.city}
+                  isOptional
+                  isMotorway
+                  updateStop={(newStop) => {
+                    const newStops = [...formData.stops];
+                    newStops[actualIndex] = {
+                      ...newStops[actualIndex],
+                      ...newStop,
+                    };
+                    setFormData({ ...formData, stops: newStops });
+                  }}
+                  removeStop={() => {
+                    const newStops = [...formData.stops];
+                    newStops.splice(actualIndex, 1);
+                    setFormData({ ...formData, stops: newStops });
+                  }}
+                />
+              );
+            })}
+
+          {/* Arrival Stop */}
+          <h3 className="font-bold text-lg mt-2 mb-2">Arrival Stand</h3>
+          <StopSelector
+            stop={formData.stops[formData.stops.length - 1]}
+            index={formData.stops.length - 1}
+            city={formData.endCity}
+            updateStop={(newStop) => {
+              const newStops = [...formData.stops];
+              newStops[newStops.length - 1] = {
+                ...newStops[newStops.length - 1],
+                ...newStop,
+                city: formData.endCity,
+              };
+              setFormData({ ...formData, stops: newStops });
+            }}
+          />
         </div>
 
         <div>
