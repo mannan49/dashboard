@@ -86,9 +86,7 @@ const DriverMapNavigation = () => {
           const current = { lat: latitude, lng: longitude };
           setUserLocation(current);
           updateDriverLocation(latitude, longitude);
-
-          // 👇 Recalculate route when driver moves
-          calculateRoute(current);
+          // calculateRoute(current);
         },
         (error) => console.error("Geolocation error:", error),
         { enableHighAccuracy: true }

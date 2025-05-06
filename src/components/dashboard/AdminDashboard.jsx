@@ -77,11 +77,7 @@ const AdminDashboard = () => {
         <div className="lg:flex mt-4 px-0.5 gap-2" style={{ height: "300px" }}>
           <BarChart showFromCities={true} title="Departure Cities" />
           <BarChart showFromCities={false} title="Arrival Cities" />
-          {/* <BarChart /> */}
-          {/* <MyRevenueLineChart /> */}
         </div>
-        <div className="lg:flex my-4 h-full">{/* <LineChart /> */}</div>
-        <div className="pt-4">{/* <CompanyTable /> */}</div>
       </div>
     </div>
   );

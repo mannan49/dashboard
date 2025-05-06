@@ -83,14 +83,11 @@ const BusesPage = () => {
 
       {/* Bus Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Here I want to map only those buses having bus.date of today or future */}
         {buses
           .filter((bus) => {
-            const busDate = new Date(bus.date);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            busDate.setHours(0, 0, 0, 0);
-            return busDate >= today;
+            const busDateTime = new Date(bus?.date);
+            const now = new Date();
+            return busDateTime > now;
           })
           .map((bus) => (
             <div

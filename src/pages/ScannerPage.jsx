@@ -24,7 +24,7 @@ const ScannerPage = () => {
 
       const userId = data?.[0]?.userId;
       if (!userId) {
-        throw new Error("Invalid user data received from server.");
+        throw new Error("No tickets found for this user.");
       }
 
       toast.success("Card scanned successfully!");

@@ -11,13 +11,11 @@ const BarChart = ({ showFromCities = true, title = "Cities" }) => {
     return <Loader />;
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = new Date();
 
-  const upcomingBuses = buses.filter((bus) => {
-    const busDate = new Date(bus.date);
-    return busDate >= today;
-  });
+  const upcomingBuses = buses
+    .filter((bus) => new Date(bus.date) > now)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const routeAnalysis = analyzeBusRoutes(upcomingBuses ?? []);
   const selectedCities = showFromCities

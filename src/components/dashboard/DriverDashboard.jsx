@@ -3,6 +3,8 @@ import { jwtDecode } from "jwt-decode";
 import { apiBaseUrl } from "../apis/setting";
 import { formatDateToDayMonth } from "../utils/HelperFunctions";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../apis/apiClient";
+import { busStatuses } from "../utils/bus-statuses";
 
 const DriverDashboard = () => {
   const [driverBuses, setDriverBuses] = useState([]);
@@ -113,8 +115,18 @@ const DriverDashboard = () => {
     return now >= windowStart && now <= windowEnd;
   };
 
-  const handleStartDrive = (busId) => {
-    navigate(`driver/map/${busId}`);
+  const handleStartDrive = async (busId) => {
+    try {
+      const response = await apiClient.post("/bus/update-bus-status", {
+        busId,
+        status: busStatuses.IN_TRANSIT,
+      });
+
+      console.log("Bus status updated:", response.data);
+      navigate(`driver/map/${busId}`);
+    } catch (error) {
+      console.error("Failed to update bus status:", error);
+    }
   };
 
   return (
