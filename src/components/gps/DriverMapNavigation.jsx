@@ -5,24 +5,28 @@ import {
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Loader from "../utils/Loader";
 import { apiBaseUrl } from "../apis/setting";
+import { busStatuses } from "../utils/bus-statuses";
+import apiClient from "../apis/apiClient";
 
 const containerStyle = {
   width: "100%",
-  height: "500px",
+  height: "90%",
 };
 
 const DriverMapNavigation = () => {
   const { busId } = useParams();
+  const navigate = useNavigate();
 
   const [userLocation, setUserLocation] = useState(null);
   const [directionsResponse, setDirectionsResponse] = useState(null);
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [busData, setBusData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -52,6 +56,7 @@ const DriverMapNavigation = () => {
   };
 
   const fetchBusData = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiBaseUrl}/bus/bus-advance-search`, {
@@ -72,6 +77,8 @@ const DriverMapNavigation = () => {
       }
     } catch (error) {
       console.error("❌ Error fetching bus data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -233,10 +240,29 @@ const DriverMapNavigation = () => {
     }
   }, [busData, userLocation, isLoaded]);
 
+  // I want this component to renender when driver changes status of bus so that buttons can update accordingly
+  const changeBusStatus = async (status) => {
+    setLoading(true);
+    try {
+      await apiClient.post("/bus/update-bus-status", {
+        busId,
+        status: status,
+      });
+
+      if (status === busStatuses.COMPLETED) {
+        navigate(`/`);
+      }
+    } catch (error) {
+      console.error("Failed to update bus status:", error);
+    } finally {
+      await fetchBusData();
+    }
+  };
+
   if (!isLoaded) return <Loader />;
 
   return (
-    <div className="w-full py-10">
+    <div className="w-full">
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={userLocation || { lat: 30.1575, lng: 71.5249 }}
@@ -257,16 +283,41 @@ const DriverMapNavigation = () => {
         )}
       </GoogleMap>
 
-      {distance && duration && (
-        <div className="text-center mt-4">
-          <p>
-            Total Distance: <strong>{distance}</strong>
-          </p>
-          <p>
-            Estimated Duration: <strong>{duration}</strong>
-          </p>
-        </div>
-      )}
+      <div className="flex justify-center items-center gap-6">
+        {distance && duration && (
+          <div className="text-center mt-4">
+            <p>
+              Total Distance: <strong>{distance}</strong>
+            </p>
+            <p>
+              Estimated Duration: <strong>{duration}</strong>
+            </p>
+          </div>
+        )}
+
+        {busData?.status === busStatuses.IN_TRANSIT && (
+          <button
+            className="bg-primary text-white py-2 px-6 rounded-full"
+            onClick={() => changeBusStatus(busStatuses.PAUSED)}
+          >
+            {loading ? <Loader /> : "Pasue Drive"}
+          </button>
+        )}
+        {busData?.status === busStatuses.PAUSED && (
+          <button
+            className="bg-yellow-500 text-white py-2 px-6 rounded-full"
+            onClick={() => changeBusStatus(busStatuses.IN_TRANSIT)}
+          >
+            {loading ? <Loader /> : "Resume Drive"}
+          </button>
+        )}
+        <button
+          className="bg-red-500 text-white py-2 px-6 rounded-full"
+          onClick={() => changeBusStatus(busStatuses.COMPLETED)}
+        >
+          End Drive
+        </button>
+      </div>
     </div>
   );
 };

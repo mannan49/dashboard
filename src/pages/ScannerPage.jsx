@@ -22,7 +22,7 @@ const ScannerPage = () => {
 
       const data = response.data;
 
-      const userId = data?.[0]?.userId;
+      const userId = data?.active?.[0]?.userId;
       if (!userId) {
         throw new Error("No tickets found for this user.");
       }

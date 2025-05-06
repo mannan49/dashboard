@@ -88,31 +88,21 @@ const DriverDashboard = () => {
     setFilter(e.target.value);
   };
 
-  const isStartDriveAvailable = (departureTime, travelDate) => {
-    const [depHours, depMinutes] = departureTime.split(":").map(Number);
+  const isStartDriveAvailable = (bus) => {
+    if (bus?.status === busStatuses.COMPLETED) return false;
+    if (!bus?.date) return false;
 
+    const busDateTime = new Date(bus?.date);
     const now = new Date();
-    const travel = new Date(travelDate);
 
-    // Check if travel date is today
-    const isToday =
-      now.getFullYear() === travel.getFullYear() &&
-      now.getMonth() === travel.getMonth() &&
-      now.getDate() === travel.getDate();
+    const busDateLocalStr = busDateTime.toLocaleDateString();
+    const todayStr = now.toLocaleDateString();
 
-    if (!isToday) {
-      return false;
-    }
+    if (busDateLocalStr !== todayStr) return false;
 
-    // Create a Date object for departure time
-    const departure = new Date();
-    departure.setHours(depHours, depMinutes, 0, 0);
+    const showFrom = new Date(busDateTime.getTime() - 30 * 60 * 1000);
 
-    // Define the window: 30 minutes before and after departure
-    const windowStart = new Date(departure.getTime() - 30 * 60 * 1000);
-    const windowEnd = new Date(departure.getTime() + 30 * 60 * 1000);
-
-    return now >= windowStart && now <= windowEnd;
+    return now >= showFrom;
   };
 
   const handleStartDrive = async (busId) => {
@@ -194,20 +184,15 @@ const DriverDashboard = () => {
                 <p className="text-gray-600 mb-2">
                   Fare: {bus?.fare?.actualPrice}
                 </p>
-                <button
-                  className="bg-green-500 text-white p-2 rounded-md"
-                  onClick={() => handleStartDrive(bus._id)}
-                >
-                  Start Drive
-                </button>
-                {/* {isStartDriveAvailable(bus?.departureTime, bus?.date) && (
+
+                {isStartDriveAvailable(bus) && (
                   <button
-                    className="bg-green-500 text-white p-2 rounded-md"
+                    className="bg-green-500 text-white py-2 px-6 rounded-full"
                     onClick={() => handleStartDrive(bus._id)}
                   >
                     Start Drive
                   </button>
-                )} */}
+                )}
               </div>
             ))
           )}

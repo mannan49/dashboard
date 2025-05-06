@@ -11,12 +11,14 @@ import {
   fetchAdminBuses,
   updateBus,
 } from "../store/slices/busesSlice";
+import Loader from "../components/utils/Loader";
 
 const BusesPage = () => {
   const buses = useSelector((state) => state.buses.data);
   const drivers = useSelector((state) => state.drivers.data);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBus, setSelectedBus] = useState(null);
   const [selectedDriverId, setSelectedDriverId] = useState("");
@@ -37,6 +39,7 @@ const BusesPage = () => {
   };
 
   const handleSubmitDriver = async () => {
+    setLoading(true);
     if (!selectedDriverId) {
       toast.error("Please select a driver!");
       return;
@@ -56,6 +59,8 @@ const BusesPage = () => {
     } catch (error) {
       console.error("Error assigning driver:", error);
       toast.error("Failed to assign driver");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,7 +180,7 @@ const BusesPage = () => {
                 className="bg-primary text-white px-6 py-2 rounded-full"
                 onClick={handleSubmitDriver}
               >
-                Submit
+                {loading ? <Loader /> : "Submit"}
               </button>
             </div>
           </div>

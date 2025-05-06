@@ -5,6 +5,8 @@ import Loader from "../utils/Loader";
 import { GrUserWorker } from "react-icons/gr";
 import { jwtDecode } from "jwt-decode";
 import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { fetchDrivers } from "../../store/slices/driverSlice";
 
 function DriverRegistration() {
   const [loading, setLoading] = useState(false);
@@ -20,6 +22,7 @@ function DriverRegistration() {
 
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (id) {
@@ -110,6 +113,7 @@ function DriverRegistration() {
       toast.error(error.message);
     } finally {
       setLoading(false);
+      dispatch(fetchDrivers());
     }
   };
 

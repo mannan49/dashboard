@@ -7,10 +7,6 @@ import Loader from "../utils/Loader";
 const BarChart = ({ showFromCities = true, title = "Cities" }) => {
   const buses = useSelector((state) => state.buses.data);
 
-  if (!buses || buses.length === 0) {
-    return <Loader />;
-  }
-
   const now = new Date();
 
   const upcomingBuses = buses
