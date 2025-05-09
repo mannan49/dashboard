@@ -35,7 +35,7 @@ const TicketCard = () => {
           }
         );
 
-        setTicketInfo(response?.data);
+        setTicketInfo(response?.data?.active);
       } catch (err) {
         setError(err.message);
       } finally {

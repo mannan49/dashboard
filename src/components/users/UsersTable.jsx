@@ -214,14 +214,14 @@ const UsersTable = () => {
             <tbody>
               {users.map((user, index) => (
                 <tr key={index} className="text-center">
-                  <td className="py-2 px-4 border-b">{user.email}</td>
+                  <td className="py-2 px-4 border-b">{user?.email}</td>
                   <td className="py-2 px-4 border-b">
-                    {formatPhoneNumber(user.phoneNumber)}
+                    {formatPhoneNumber(user?.phoneNumber)}
                   </td>
-                  <td className="py-2 px-4 border-b">
+                  <td className="py-2 px-4 border-b relative group">
                     <span
-                      className={`py-1 px-3 rounded-full text-white ${
-                        user.RFIDCardStatus === "pending"
+                      className={`py-1 px-3 rounded-full text-white cursor-pointer ${
+                        user?.RFIDCardStatus === "pending"
                           ? "bg-gray-500"
                           : user.RFIDCardStatus === "delivered"
                           ? "bg-green-500"
@@ -230,7 +230,30 @@ const UsersTable = () => {
                     >
                       {capitalizeFirstLetter(user.RFIDCardStatus)}
                     </span>
+
+                    {/* Tooltip shown only if RFIDCardStatus is not "pending" */}
+                    {user?.RFIDCardStatus !== "pending" && (
+                      <div className="absolute z-10 w-64 bg-white text-black border border-gray-300 rounded-md shadow-lg p-2 text-sm left-1/2 transform -translate-x-1/2 mt-2 hidden group-hover:block">
+                        <div>
+                          <span className="font-semibold">Address:</span>{" "}
+                          {user?.address?.address || "N/A"}
+                        </div>
+                        <div>
+                          <span className="font-semibold">City:</span>{" "}
+                          {user?.address?.city || "N/A"}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Province:</span>{" "}
+                          {user?.address?.province || "N/A"}
+                        </div>
+                        <div>
+                          <span className="font-semibold">Postal Code:</span>{" "}
+                          {user?.address?.postalCode || "N/A"}
+                        </div>
+                      </div>
+                    )}
                   </td>
+
                   <td className="py-2 px-4 border-b">{user.RFIDCardNumber}</td>
                   <td className="py-2 px-4 border-b flex justify-center items-center gap-2">
                     <button>

@@ -87,22 +87,33 @@ const DriverDashboard = () => {
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
-
   const isStartDriveAvailable = (bus) => {
-    if (bus?.status === busStatuses.COMPLETED) return false;
-    if (!bus?.date) return false;
+    if (bus?.status === busStatuses.COMPLETED) {
+      console.log("Bus status is COMPLETED");
+      return false;
+    }
 
-    const busDateTime = new Date(bus?.date);
+    if (!bus?.date) {
+      console.log("Bus date is missing");
+      return false;
+    }
+
     const now = new Date();
 
-    const busDateLocalStr = busDateTime.toLocaleDateString();
-    const todayStr = now.toLocaleDateString();
+    // Strip UTC offset and parse as local
+    const localDateStr = bus.date.replace(/Z|(\+|-)\d{2}:\d{2}$/, "");
+    const busDate = new Date(localDateStr);
 
-    if (busDateLocalStr !== todayStr) return false;
+    const thirtyMinutesBefore = new Date(busDate.getTime() - 30 * 60 * 1000);
 
-    const showFrom = new Date(busDateTime.getTime() - 30 * 60 * 1000);
+    console.log("Current time (local):", now.toString());
+    console.log("Bus date (forced as local):", busDate.toString());
+    console.log("30 minutes before bus date:", thirtyMinutesBefore.toString());
 
-    return now >= showFrom;
+    const isAvailable = now >= thirtyMinutesBefore;
+    console.log("Is start drive available?", isAvailable);
+
+    return isAvailable;
   };
 
   const handleStartDrive = async (busId) => {
