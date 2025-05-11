@@ -1,20 +1,15 @@
-import { useEffect, useState } from "react";
-import {
-  GoogleMap,
-  DirectionsRenderer,
-  Marker,
-  useJsApiLoader,
-} from "@react-google-maps/api";
-import { useNavigate, useParams } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import Loader from "../utils/Loader";
-import { apiBaseUrl } from "../apis/setting";
-import { busStatuses } from "../utils/bus-statuses";
-import apiClient from "../apis/apiClient";
+import Loader from '../utils/Loader';
+import { jwtDecode } from 'jwt-decode';
+import apiClient from '../apis/apiClient';
+import { useEffect, useState } from 'react';
+import { apiBaseUrl } from '../apis/setting';
+import { busStatuses } from '../utils/bus-statuses';
+import { useNavigate, useParams } from 'react-router-dom';
+import { GoogleMap, DirectionsRenderer, Marker, useJsApiLoader } from '@react-google-maps/api';
 
 const containerStyle = {
-  width: "100%",
-  height: "90%",
+  width: '100%',
+  height: '90%',
 };
 
 const DriverMapNavigation = () => {
@@ -23,24 +18,24 @@ const DriverMapNavigation = () => {
 
   const [userLocation, setUserLocation] = useState(null);
   const [directionsResponse, setDirectionsResponse] = useState(null);
-  const [distance, setDistance] = useState("");
-  const [duration, setDuration] = useState("");
+  const [distance, setDistance] = useState('');
+  const [duration, setDuration] = useState('');
   const [busData, setBusData] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: ["places"],
+    libraries: ['places'],
   });
 
   const updateDriverLocation = async (latitude, longitude) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       const decodedToken = jwtDecode(token);
       await fetch(`${apiBaseUrl}/location/update`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -51,32 +46,32 @@ const DriverMapNavigation = () => {
         }),
       });
     } catch (error) {
-      console.error("❌ Error updating driver location:", error);
+      console.error('❌ Error updating driver location:', error);
     }
   };
 
   const fetchBusData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiBaseUrl}/bus/bus-advance-search`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ _id: busId }),
       });
 
       const data = await response.json();
-      console.log("✅ Bus data response:", data);
+      console.log('✅ Bus data response:', data);
       if (data.data && data.data.length > 0) {
         setBusData(data.data[0]);
       } else {
-        console.warn("⚠️ No bus data returned");
+        console.warn('⚠️ No bus data returned');
       }
     } catch (error) {
-      console.error("❌ Error fetching bus data:", error);
+      console.error('❌ Error fetching bus data:', error);
     } finally {
       setLoading(false);
     }
@@ -88,14 +83,14 @@ const DriverMapNavigation = () => {
 
     if (navigator.geolocation) {
       watchId = navigator.geolocation.watchPosition(
-        (position) => {
+        position => {
           const { latitude, longitude } = position.coords;
           const current = { lat: latitude, lng: longitude };
           setUserLocation(current);
           updateDriverLocation(latitude, longitude);
           // calculateRoute(current);
         },
-        (error) => console.error("Geolocation error:", error),
+        error => console.error('Geolocation error:', error),
         { enableHighAccuracy: true }
       );
     }
@@ -117,7 +112,7 @@ const DriverMapNavigation = () => {
       lng: stops[stops.length - 1].geometry.location.lng,
     };
 
-    const waypoints = stops.slice(1, -1).map((stop) => ({
+    const waypoints = stops.slice(1, -1).map(stop => ({
       location: {
         lat: stop.geometry.location.lat,
         lng: stop.geometry.location.lng,
@@ -140,15 +135,15 @@ const DriverMapNavigation = () => {
       let totalDistance = 0;
       let totalDuration = 0;
 
-      routeLegs.forEach((leg) => {
+      routeLegs.forEach(leg => {
         totalDistance += leg.distance.value;
         totalDuration += leg.duration.value;
       });
 
-      setDistance((totalDistance / 1000).toFixed(2) + " km");
-      setDuration(Math.ceil(totalDuration / 60) + " mins");
+      setDistance((totalDistance / 1000).toFixed(2) + ' km');
+      setDuration(Math.ceil(totalDuration / 60) + ' mins');
     } catch (error) {
-      console.error("Directions request failed:", error);
+      console.error('Directions request failed:', error);
     }
   };
 
@@ -160,18 +155,18 @@ const DriverMapNavigation = () => {
   useEffect(() => {
     const calculateRoute = async () => {
       if (!busData || !busData.route?.stops?.length) {
-        console.warn("⛔ No busData or stops to calculate route");
+        console.warn('⛔ No busData or stops to calculate route');
         return;
       }
 
       const stops = busData.route.stops;
-      console.log("📌 Bus stops:", stops);
+      console.log('📌 Bus stops:', stops);
 
       const firstStop = stops[0]?.geometry?.location;
       const lastStop = stops[stops.length - 1]?.geometry?.location;
 
       if (!firstStop || !lastStop) {
-        console.warn("⚠️ Missing coordinates for first/last stop");
+        console.warn('⚠️ Missing coordinates for first/last stop');
         return;
       }
 
@@ -201,10 +196,10 @@ const DriverMapNavigation = () => {
         })
         .filter(Boolean);
 
-      console.log("🧭 Routing info →");
-      console.log("   Origin:", origin);
-      console.log("   Destination:", destination);
-      console.log("   Waypoints:", waypoints);
+      console.log('🧭 Routing info →');
+      console.log('   Origin:', origin);
+      console.log('   Destination:', destination);
+      console.log('   Waypoints:', waypoints);
 
       try {
         const directionsService = new window.google.maps.DirectionsService();
@@ -216,7 +211,7 @@ const DriverMapNavigation = () => {
           optimizeWaypoints: false,
         });
 
-        console.log("✅ Directions API result:", result);
+        console.log('✅ Directions API result:', result);
         setDirectionsResponse(result);
 
         let totalDistance = 0;
@@ -228,10 +223,10 @@ const DriverMapNavigation = () => {
           totalDuration += leg.duration.value;
         });
 
-        setDistance((totalDistance / 1000).toFixed(2) + " km");
-        setDuration(Math.ceil(totalDuration / 60) + " mins");
+        setDistance((totalDistance / 1000).toFixed(2) + ' km');
+        setDuration(Math.ceil(totalDuration / 60) + ' mins');
       } catch (error) {
-        console.error("❌ Directions API error:", error);
+        console.error('❌ Directions API error:', error);
       }
     };
 
@@ -240,11 +235,10 @@ const DriverMapNavigation = () => {
     }
   }, [busData, userLocation, isLoaded]);
 
-  // I want this component to renender when driver changes status of bus so that buttons can update accordingly
-  const changeBusStatus = async (status) => {
+  const changeBusStatus = async status => {
     setLoading(true);
     try {
-      await apiClient.post("/bus/update-bus-status", {
+      await apiClient.post('/bus/update-bus-status', {
         busId,
         status: status,
       });
@@ -253,7 +247,7 @@ const DriverMapNavigation = () => {
         navigate(`/`);
       }
     } catch (error) {
-      console.error("Failed to update bus status:", error);
+      console.error('Failed to update bus status:', error);
     } finally {
       await fetchBusData();
     }
@@ -263,20 +257,14 @@ const DriverMapNavigation = () => {
 
   return (
     <div className="w-full">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={userLocation || { lat: 30.1575, lng: 71.5249 }}
-        zoom={10}
-      >
-        {directionsResponse && (
-          <DirectionsRenderer directions={directionsResponse} />
-        )}
+      <GoogleMap mapContainerStyle={containerStyle} center={userLocation || { lat: 30.1575, lng: 71.5249 }} zoom={10}>
+        {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
 
         {userLocation && (
           <Marker
             position={userLocation}
             icon={{
-              url: "/bus-icon.png",
+              url: '/bus-icon.png',
               scaledSize: new window.google.maps.Size(40, 40),
             }}
           />
@@ -296,25 +284,16 @@ const DriverMapNavigation = () => {
         )}
 
         {busData?.status === busStatuses.IN_TRANSIT && (
-          <button
-            className="bg-primary text-white py-2 px-6 rounded-full"
-            onClick={() => changeBusStatus(busStatuses.PAUSED)}
-          >
-            {loading ? <Loader /> : "Pasue Drive"}
+          <button className="bg-primary text-white py-2 px-6 rounded-full" onClick={() => changeBusStatus(busStatuses.PAUSED)}>
+            {loading ? <Loader /> : 'Pasue Drive'}
           </button>
         )}
         {busData?.status === busStatuses.PAUSED && (
-          <button
-            className="bg-yellow-500 text-white py-2 px-6 rounded-full"
-            onClick={() => changeBusStatus(busStatuses.IN_TRANSIT)}
-          >
-            {loading ? <Loader /> : "Resume Drive"}
+          <button className="bg-yellow-500 text-white py-2 px-6 rounded-full" onClick={() => changeBusStatus(busStatuses.IN_TRANSIT)}>
+            {loading ? <Loader /> : 'Resume Drive'}
           </button>
         )}
-        <button
-          className="bg-red-500 text-white py-2 px-6 rounded-full"
-          onClick={() => changeBusStatus(busStatuses.COMPLETED)}
-        >
+        <button className="bg-red-500 text-white py-2 px-6 rounded-full" onClick={() => changeBusStatus(busStatuses.COMPLETED)}>
           End Drive
         </button>
       </div>
