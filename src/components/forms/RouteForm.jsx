@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { apiBaseUrl } from "../apis/setting";
-import Loader from "../utils/Loader";
-import { jwtDecode } from "jwt-decode";
-import { pakistanCities } from "../utils/data";
-import { FaCircleMinus, FaCirclePlus } from "react-icons/fa6";
-import { useParams } from "react-router-dom";
-import { fetchBusStops } from "../apis/GoogleMapsApi";
-import StopSelector from "./StopSelector";
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { apiBaseUrl } from '../apis/setting';
+import Loader from '../utils/Loader';
+import { jwtDecode } from 'jwt-decode';
+import { pakistanCities } from '../utils/data';
+import { FaCircleMinus, FaCirclePlus } from 'react-icons/fa6';
+import { useParams } from 'react-router-dom';
+import { fetchBusStops } from '../apis/GoogleMapsApi';
+import StopSelector from './StopSelector';
+import Button from '../utils/components/Button';
 
 function RouteForm() {
   const [loading, setLoading] = useState(false);
@@ -15,23 +16,23 @@ function RouteForm() {
   const [routeId, setRouteId] = useState(null);
   const [availableStops, setAvailableStops] = useState([]);
   const [formData, setFormData] = useState({
-    startCity: "",
-    endCity: "",
+    startCity: '',
+    endCity: '',
     stops: [
       {
-        name: "",
-        locationLink: "",
-        duration: "",
-        formattedAddress: "",
-        placeId: "",
+        name: '',
+        locationLink: '',
+        duration: '',
+        formattedAddress: '',
+        placeId: '',
         geometry: null,
       },
       {
-        name: "",
-        locationLink: "",
-        duration: "",
-        formattedAddress: "",
-        placeId: "",
+        name: '',
+        locationLink: '',
+        duration: '',
+        formattedAddress: '',
+        placeId: '',
         geometry: null,
       },
     ],
@@ -42,7 +43,7 @@ function RouteForm() {
 
   const getAllStops = () => {
     // function to get hard coded stops from a hard coded object
-    return Object.values(pakistanCities).flatMap((city) => city.busStops);
+    return Object.values(pakistanCities).flatMap(city => city.busStops);
   };
 
   // Fetch Route Data for Editing
@@ -54,27 +55,27 @@ function RouteForm() {
     }
   }, [id]);
 
-  const loadStops = async (city) => {
+  const loadStops = async city => {
     if (city) {
       try {
         const stops = await fetchBusStops(formData.startCity);
         setAvailableStops(stops);
       } catch (error) {
-        toast.error("Could not load stops from Google Maps.");
+        toast.error('Could not load stops from Google Maps.');
       }
     }
   };
 
-  const fetchRouteData = async (routeId) => {
+  const fetchRouteData = async routeId => {
     setLoading(true);
     try {
       const response = await fetch(`${apiBaseUrl}/route/${routeId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch route data");
+        throw new Error(data.message || 'Failed to fetch route data');
       }
       setFormData({
         startCity: data.startCity,
@@ -88,54 +89,52 @@ function RouteForm() {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   const handleAddStop = () => {
-    setFormData((prevState) => ({
+    setFormData(prevState => ({
       ...prevState,
       stops: [
         ...prevState.stops,
         {
-          name: "",
-          locationLink: "",
-          duration: "",
-          city: "",
-          formattedAddress: "",
-          placeId: "",
+          name: '',
+          locationLink: '',
+          duration: '',
+          city: '',
+          formattedAddress: '',
+          placeId: '',
           geometry: null,
         },
       ],
     }));
   };
 
-  const handleRemoveStop = (index) => {
-    setFormData((prevState) => ({
+  const handleRemoveStop = index => {
+    setFormData(prevState => ({
       ...prevState,
       stops: prevState.stops.filter((_, i) => i !== index),
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       const decodedToken = jwtDecode(token);
 
-      const apiUrl = isEditMode
-        ? `${apiBaseUrl}/route/${routeId}`
-        : `${apiBaseUrl}/route`;
-      const method = isEditMode ? "PUT" : "POST";
+      const apiUrl = isEditMode ? `${apiBaseUrl}/route/${routeId}` : `${apiBaseUrl}/route`;
+      const method = isEditMode ? 'PUT' : 'POST';
 
       const response = await fetch(apiUrl, {
         method,
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           adminId: decodedToken?.sub,
@@ -147,15 +146,15 @@ function RouteForm() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to save route");
+        throw new Error(data.message || 'Failed to save route');
       }
 
-      toast.success(data.message || "Route saved successfully!");
+      toast.success(data.message || 'Route saved successfully!');
       if (!isEditMode) {
         setFormData({
-          startCity: "",
-          endCity: "",
-          stops: [{ name: "", locationLink: "", duration: "" }],
+          startCity: '',
+          endCity: '',
+          stops: [{ name: '', locationLink: '', duration: '' }],
         });
       }
     } catch (error) {
@@ -167,20 +166,12 @@ function RouteForm() {
 
   return (
     <div className="flex justify-center m-3 w-2/4">
-      <form
-        onSubmit={handleSubmit}
-        className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-3 bg-main"
-      >
-        <h2 className="text-xl italic font-bold text-center mb-0.5">
-          {isEditMode ? "Edit Route" : "Add Route"}
-        </h2>
+      <form onSubmit={handleSubmit} className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-3 bg-main">
+        <h2 className="text-xl italic font-bold text-center mb-0.5">{isEditMode ? 'Edit Route' : 'Add Route'}</h2>
 
         {/* Start City */}
         <div className="mb-4">
-          <label
-            htmlFor="startCity"
-            className="block text-xl font-semibold mb-2"
-          >
+          <label htmlFor="startCity" className="block text-xl font-semibold mb-2">
             Start City:
           </label>
           <select
@@ -192,7 +183,7 @@ function RouteForm() {
             className="border rounded-lg px-4 py-2 w-full"
           >
             <option value="">Select Departure City</option>
-            {cityOptions.map((city) => (
+            {cityOptions.map(city => (
               <option key={city} value={city}>
                 {city}
               </option>
@@ -214,7 +205,7 @@ function RouteForm() {
             className="border rounded-lg px-4 py-2 w-full"
           >
             <option value="">Select End City</option>
-            {cityOptions.map((city) => (
+            {cityOptions.map(city => (
               <option key={city} value={city}>
                 {city}
               </option>
@@ -229,7 +220,7 @@ function RouteForm() {
             stop={formData.stops[0]}
             index={0}
             city={formData.startCity}
-            updateStop={(newStop) => {
+            updateStop={newStop => {
               const newStops = [...formData.stops];
               newStops[0] = {
                 ...newStops[0],
@@ -250,10 +241,10 @@ function RouteForm() {
               onClick={() => {
                 const newStops = [...formData.stops];
                 newStops.splice(-1, 0, {
-                  name: "",
-                  locationLink: "",
-                  city: "",
-                  duration: "",
+                  name: '',
+                  locationLink: '',
+                  city: '',
+                  duration: '',
                 });
                 setFormData({ ...formData, stops: newStops });
               }}
@@ -264,9 +255,9 @@ function RouteForm() {
           {/* Mid-City Stops */}
           {formData.stops
             .slice(1, -1)
-            .filter((stop) => !stop.isMotorway) // <-- filter out motorway stops
+            .filter(stop => !stop.isMotorway) // <-- filter out motorway stops
             .map((stop, i) => {
-              const actualIndex = formData.stops.findIndex((s) => s === stop);
+              const actualIndex = formData.stops.findIndex(s => s === stop);
               return (
                 <StopSelector
                   key={`mid-${actualIndex}`} // unique key
@@ -274,7 +265,7 @@ function RouteForm() {
                   index={actualIndex}
                   city={stop.city}
                   isOptional
-                  updateStop={(newStop) => {
+                  updateStop={newStop => {
                     const newStops = [...formData.stops];
                     newStops[actualIndex] = {
                       ...newStops[actualIndex],
@@ -300,10 +291,10 @@ function RouteForm() {
               onClick={() => {
                 const newStops = [...formData.stops];
                 newStops.splice(-1, 0, {
-                  name: "",
-                  locationLink: "",
-                  city: "",
-                  duration: "",
+                  name: '',
+                  locationLink: '',
+                  city: '',
+                  duration: '',
                   isMotorway: true,
                 });
                 setFormData({ ...formData, stops: newStops });
@@ -316,9 +307,9 @@ function RouteForm() {
           {/* Motorway Stops */}
           {formData.stops
             .slice(1, -1)
-            .filter((stop) => stop.isMotorway)
+            .filter(stop => stop.isMotorway)
             .map((stop, i) => {
-              const actualIndex = formData.stops.findIndex((s) => s === stop);
+              const actualIndex = formData.stops.findIndex(s => s === stop);
               return (
                 <StopSelector
                   key={`motorway-${actualIndex}`} // unique key
@@ -327,7 +318,7 @@ function RouteForm() {
                   city={stop.city}
                   isOptional
                   isMotorway
-                  updateStop={(newStop) => {
+                  updateStop={newStop => {
                     const newStops = [...formData.stops];
                     newStops[actualIndex] = {
                       ...newStops[actualIndex],
@@ -350,7 +341,7 @@ function RouteForm() {
             stop={formData.stops[formData.stops.length - 1]}
             index={formData.stops.length - 1}
             city={formData.endCity}
-            updateStop={(newStop) => {
+            updateStop={newStop => {
               const newStops = [...formData.stops];
               newStops[newStops.length - 1] = {
                 ...newStops[newStops.length - 1],
@@ -363,14 +354,9 @@ function RouteForm() {
         </div>
 
         <div>
-          <div className="bg-primary mx-auto my-2 border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-1/2">
-            <button
-              className="text-main text-lg w-full flex justify-center items-center gap-2"
-              type="submit"
-            >
-              {loading ? <Loader /> : isEditMode ? "Update Route" : "Add Route"}
-            </button>
-          </div>
+          <Button type="submit" className="mx-auto w-1/2" isLoading={loading}>
+            {isEditMode ? 'Update Route' : 'Add Route'}
+          </Button>
         </div>
       </form>
     </div>

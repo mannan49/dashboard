@@ -28,7 +28,7 @@ const NavigationBusesList = () => {
           }
         );
 
-        setLocations(response.data.data);
+        setLocations(response?.data?.data);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || "Error fetching locations.");

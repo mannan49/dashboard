@@ -3,6 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import apiClient from '../apis/apiClient';
 import { useEffect, useState } from 'react';
 import { apiBaseUrl } from '../apis/setting';
+import Button from '../utils/components/Button';
 import { busStatuses } from '../utils/bus-statuses';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GoogleMap, DirectionsRenderer, Marker, useJsApiLoader } from '@react-google-maps/api';
@@ -151,7 +152,6 @@ const DriverMapNavigation = () => {
     fetchBusData();
   }, []);
 
-  // Routing logic
   useEffect(() => {
     const calculateRoute = async () => {
       if (!busData || !busData.route?.stops?.length) {
@@ -271,7 +271,7 @@ const DriverMapNavigation = () => {
         )}
       </GoogleMap>
 
-      <div className="flex justify-center items-center gap-6">
+      <div className="flex justify-center items-center gap-6 mb-6">
         {distance && duration && (
           <div className="text-center mt-4">
             <p>
@@ -284,18 +284,18 @@ const DriverMapNavigation = () => {
         )}
 
         {busData?.status === busStatuses.IN_TRANSIT && (
-          <button className="bg-primary text-white py-2 px-6 rounded-full" onClick={() => changeBusStatus(busStatuses.PAUSED)}>
-            {loading ? <Loader /> : 'Pasue Drive'}
-          </button>
+          <Button isLoading={loading} className="w-1/6" onClick={() => changeBusStatus(busStatuses.PAUSED)}>
+            Pause Drive
+          </Button>
         )}
         {busData?.status === busStatuses.PAUSED && (
-          <button className="bg-yellow-500 text-white py-2 px-6 rounded-full" onClick={() => changeBusStatus(busStatuses.IN_TRANSIT)}>
-            {loading ? <Loader /> : 'Resume Drive'}
-          </button>
+          <Button isLoading={loading} className="bg-yellow-500 w-1/6" onClick={() => changeBusStatus(busStatuses.IN_TRANSIT)}>
+            Resume Drive
+          </Button>
         )}
-        <button className="bg-red-500 text-white py-2 px-6 rounded-full" onClick={() => changeBusStatus(busStatuses.COMPLETED)}>
+        <Button className="bg-red-600 w-1/6" onClick={() => changeBusStatus(busStatuses.COMPLETED)}>
           End Drive
-        </button>
+        </Button>
       </div>
     </div>
   );

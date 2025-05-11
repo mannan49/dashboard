@@ -1,22 +1,23 @@
 /* eslint-disable no-unused-vars */
-import { FaBus } from "react-icons/fa";
-import { NavLink, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { loginAdmin } from "../apis/AuthenticationApi";
+import { FaBus } from 'react-icons/fa';
+import { NavLink, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { loginAdmin } from '../apis/AuthenticationApi';
 // import Loader from "../utils/Loader";
-import { useState } from "react";
-import Loader from "../utils/Loader";
-import { useDispatch } from "react-redux";
-import { initializeStore } from "../../store/initializeStore";
+import { useState } from 'react';
+import Loader from '../utils/Loader';
+import { useDispatch } from 'react-redux';
+import { initializeStore } from '../../store/initializeStore';
+import Button from '../utils/components/Button';
 
 function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setIsLoading(true);
     const data = {
@@ -28,18 +29,18 @@ function Login() {
 
       if (result.success) {
         const { data } = result;
-        window.localStorage.setItem("token", data.token);
+        window.localStorage.setItem('token', data.token);
         await initializeStore(dispatch);
         setIsLoading(false);
         toast.success(data.message);
-        navigate("/");
+        navigate('/');
       } else {
         setIsLoading(false);
         toast.error(result.message);
       }
     } catch (error) {
       setIsLoading(false);
-      toast.error("Something went wrong. Please try again.");
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
@@ -47,28 +48,17 @@ function Login() {
     <div className="px-4 lg:px-0 grid grid-cols-1 md:grid-cols-2 overflow-hidden h-screen lg:bg-none bg-main">
       <div className="hidden md:block">
         <div className="h-full flex justify-center items-center">
-          <img
-            src="https://www.freeiconspng.com/uploads/bus-png-4.png"
-            className="object-cover w-full"
-            alt="quiz-mine"
-          />
+          <img src="https://www.freeiconspng.com/uploads/bus-png-4.png" className="object-cover w-full" alt="quiz-mine" />
         </div>
       </div>
 
       <div className="flex justify-center max-h-screen ">
-        <form
-          className="border-primary border-solid border-2 rounded-lg h-fit my-auto p-5 w-full lg:w-2/3"
-          onSubmit={handleSubmit}
-        >
+        <form className="border-primary border-solid border-2 rounded-lg h-fit my-auto p-5 w-full lg:w-2/3" onSubmit={handleSubmit}>
           <div className="flex items-center justify-center">
             <FaBus className="text-3xl text-primary mr-2" />
-            <span className="text-primary text-3xl text-center font-bold mb-0.5">
-              Tap & Travel
-            </span>
+            <span className="text-primary text-3xl text-center font-bold mb-0.5">Tap & Travel</span>
           </div>
-          <h2 className="text-xl italic font-bold text-center mb-0.5">
-            Journey Bright, Day or Night
-          </h2>
+          <h2 className="text-xl italic font-bold text-center mb-0.5">Journey Bright, Day or Night</h2>
           <div className="mb-4 flex flex-col">
             <label htmlFor="email" className="font-bold text-lg">
               Email :
@@ -79,7 +69,7 @@ function Login() {
               id="email"
               name="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
               placeholder="Enter Your E-mail"
             />
@@ -95,18 +85,16 @@ function Login() {
               id="password"
               name="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value)}
               required
               placeholder="Enter Your Password"
             />
           </div>
 
           <div className="mb-1">
-            <div className="bg-primary border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-              <button className="text-main text-xl w-full" type="submit">
-                {isLoading ? <Loader /> : "Log In"}
-              </button>
-            </div>
+            <Button type="submit" className="w-full" isLoading={isLoading}>
+              Login
+            </Button>
           </div>
         </form>
       </div>

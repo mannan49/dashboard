@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { apiBaseUrl } from "../components/apis/setting";
-import { capitalizeFirstLetter } from "../components/utils/HelperFunctions";
-import { formatDate } from "../components/utils/utilityFunctions.";
-import Loader from "../components/utils/Loader";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import { apiBaseUrl } from '../components/apis/setting';
+import { capitalizeFirstLetter } from '../components/utils/HelperFunctions';
+import { formatDate } from '../components/utils/utilityFunctions.';
+import Loader from '../components/utils/Loader';
 
 const PaymentPage = () => {
   const [payments, setPayments] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -17,21 +17,18 @@ const PaymentPage = () => {
       try {
         setIsLoading(true);
         // Decode adminId from token
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         const decodedToken = jwtDecode(token);
         const adminId = decodedToken.sub;
 
         // Make the API call
-        const response = await axios.post(
-          `${apiBaseUrl}/payment/payments-advance-search`,
-          {
-            adminId,
-          }
-        );
+        const response = await axios.post(`${apiBaseUrl}/payment/payments-advance-search`, {
+          adminId,
+        });
 
         setPayments(response.data.data || []);
       } catch (error) {
-        console.error("Error fetching payments:", error);
+        console.error('Error fetching payments:', error);
       } finally {
         setIsLoading(false);
       }
@@ -42,16 +39,15 @@ const PaymentPage = () => {
 
   // Filter payments
   const filteredPayments = payments
-    .filter((payment) => {
+    .filter(payment => {
       const matchesSearch =
         payment?.paymentId.includes(searchTerm) ||
         payment?.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment?.amount.toString().includes(searchTerm);
       const matchesStatus =
-        statusFilter === "All" ||
-        (statusFilter === "Today"
-          ? new Date(payment.createdAt.$date).toDateString() ===
-            new Date().toDateString()
+        statusFilter === 'All' ||
+        (statusFilter === 'Today'
+          ? new Date(payment.createdAt.$date).toDateString() === new Date().toDateString()
           : payment.status === statusFilter);
       return matchesSearch && matchesStatus;
     })
@@ -68,15 +64,11 @@ const PaymentPage = () => {
           placeholder="Search by payment ID, user, or amount..."
           className="border border-gray-300 rounded-full px-4 py-2 w-1/3"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
         />
 
         {/* Status Filter */}
-        <select
-          className="border border-gray-300 rounded-lg p-2"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
+        <select className="border border-gray-300 rounded-lg p-2" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="All">All</option>
           <option value="succeeded">Succeeded</option>
           <option value="pending">Pending</option>
@@ -101,33 +93,19 @@ const PaymentPage = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredPayments.map((payment) => (
+              {filteredPayments.map(payment => (
                 <tr key={payment.paymentId} className="hover:bg-gray-50">
-                  <td className="p-4 border text-center">
-                    {payment?.paymentId}
-                  </td>
-                  <td className="p-4 border text-center">
-                    {payment?.userName ?? payment?.userId}
-                  </td>
-                  <td className="p-4 border text-center">
-                    Rs. {payment?.amount}
-                  </td>
+                  <td className="p-4 border text-center">{payment?.paymentId}</td>
+                  <td className="p-4 border text-center">{payment?.userName ?? payment?.userId}</td>
+                  <td className="p-4 border text-center">Rs. {payment?.amount}</td>
                   <td
                     className={`p-4 border  text-center ${
-                      payment.status === "succeeded"
-                        ? "text-green-600"
-                        : payment.status === "Pending"
-                        ? "text-yellow-600"
-                        : "text-red-600"
+                      payment.status === 'succeeded' ? 'text-green-600' : payment.status === 'Pending' ? 'text-yellow-600' : 'text-red-600'
                     }`}
                   >
-                    {capitalizeFirstLetter(payment.status)}
+                    {capitalizeFirstLetter(payment?.status)}
                   </td>
-                  <td className="p-4 border">
-                    {formatDate(
-                      new Date(payment.createdAt).toLocaleDateString()
-                    )}
-                  </td>
+                  <td className="p-4 border">{formatDate(new Date(payment.createdAt).toLocaleDateString())}</td>
                 </tr>
               ))}
             </tbody>

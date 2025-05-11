@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import toast from "react-hot-toast";
-import { apiBaseUrl } from "../apis/setting";
-import Loader from "../utils/Loader";
-import { jwtDecode } from "jwt-decode";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { apiBaseUrl } from '../apis/setting';
+import { jwtDecode } from 'jwt-decode';
+import Button from '../utils/components/Button';
 
 function VehiclesForm() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    busNumber: "",
-    busCapacity: "",
-    engineNumber: "",
+    busNumber: '',
+    busCapacity: '',
+    engineNumber: '',
     wifi: false,
     ac: false,
-    fuelType: "diesel",
-    standard: "",
+    fuelType: 'diesel',
+    standard: '',
   });
 
   useEffect(() => {
@@ -26,13 +27,12 @@ function VehiclesForm() {
     }
   }, [id]);
 
-  // Fetch data for edit mode
-  const fetchVehicleData = async (vehicleId) => {
+  const fetchVehicleData = async vehicleId => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       const response = await fetch(`${apiBaseUrl}/bus-entity/${vehicleId}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -40,7 +40,7 @@ function VehiclesForm() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch vehicle data.");
+        throw new Error(data.message || 'Failed to fetch vehicle data.');
       }
 
       setFormData({
@@ -59,31 +59,29 @@ function VehiclesForm() {
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
+    setFormData(prevData => ({
       ...prevData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       const decodedToken = jwtDecode(token);
-      const endpoint = isEditMode
-        ? `${apiBaseUrl}/bus-entity/${id}`
-        : `${apiBaseUrl}/bus-entity`;
-      const method = isEditMode ? "PUT" : "POST";
+      const endpoint = isEditMode ? `${apiBaseUrl}/bus-entity/${id}` : `${apiBaseUrl}/bus-entity`;
+      const method = isEditMode ? 'PUT' : 'POST';
 
       const response = await fetch(endpoint, {
         method,
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           adminId: decodedToken?.sub,
@@ -99,41 +97,33 @@ function VehiclesForm() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Failed to submit form.");
+        throw new Error(data?.message || 'Failed to submit form.');
       }
 
-      toast.success(
-        isEditMode
-          ? "Vehicle updated successfully!"
-          : "Vehicle added successfully!"
-      );
+      toast.success(isEditMode ? 'Vehicle updated successfully!' : 'Vehicle added successfully!');
       if (!isEditMode) {
         setFormData({
-          busNumber: "",
-          busCapacity: "",
-          engineNumber: "",
+          busNumber: '',
+          busCapacity: '',
+          engineNumber: '',
           wifi: false,
           ac: false,
-          fuelType: "diesel",
-          standard: "",
+          fuelType: 'diesel',
+          standard: '',
         });
       }
     } catch (error) {
       toast.error(`${error.message}`);
     } finally {
       setLoading(false);
+      navigate('/vehicles');
     }
   };
 
   return (
     <div className="flex justify-center m-3 w-2/4">
-      <form
-        onSubmit={handleSubmit}
-        className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-3 bg-main"
-      >
-        <h2 className="text-xl italic font-bold text-center mb-0.5">
-          {isEditMode ? "Edit Vehicle" : "Vehicle Registration Form"}
-        </h2>
+      <form onSubmit={handleSubmit} className="border-primary border-solid border-2 w-full rounded-lg h-fit m-3 px-4 lg:px-10 py-3 bg-main">
+        <h2 className="text-xl italic font-bold text-center mb-0.5">{isEditMode ? 'Edit Vehicle' : 'Vehicle Registration Form'}</h2>
 
         <div className="mb-1 flex flex-col">
           <label htmlFor="bus-number" className="font-bold text-lg">
@@ -188,29 +178,14 @@ function VehiclesForm() {
               <label htmlFor="ac" className="block text-xl font-semibold mb-2">
                 AC
               </label>
-              <input
-                type="checkbox"
-                id="ac"
-                name="ac"
-                checked={formData.ac}
-                onChange={handleChange}
-              />
+              <input type="checkbox" id="ac" name="ac" checked={formData.ac} onChange={handleChange} />
             </div>
 
             <div className="mb-4">
-              <label
-                htmlFor="wifi"
-                className="block text-xl font-semibold mb-2"
-              >
+              <label htmlFor="wifi" className="block text-xl font-semibold mb-2">
                 Wi-Fi
               </label>
-              <input
-                type="checkbox"
-                id="wifi"
-                name="wifi"
-                checked={formData.wifi}
-                onChange={handleChange}
-              />
+              <input type="checkbox" id="wifi" name="wifi" checked={formData.wifi} onChange={handleChange} />
             </div>
           </div>
           <div className="mb-4 flex flex-col">
@@ -231,55 +206,26 @@ function VehiclesForm() {
           </div>
         </div>
 
-        <div className="mb-4 flex gap-4">
+        <div className="mb-2 flex gap-4">
           <label className="block text-xl font-semibold mb-2">Standard:</label>
           <label className=" text-xl">
-            <input
-              type="radio"
-              name="standard"
-              value="economy"
-              checked={formData.standard === "economy"}
-              onChange={handleChange}
-            />
+            <input type="radio" name="standard" value="economy" checked={formData.standard === 'economy'} onChange={handleChange} />
             Economy
           </label>
           <label className="ml-4 text-xl">
-            <input
-              type="radio"
-              name="standard"
-              value="executive"
-              checked={formData.standard === "executive"}
-              onChange={handleChange}
-            />
+            <input type="radio" name="standard" value="executive" checked={formData.standard === 'executive'} onChange={handleChange} />
             Executive
           </label>
           <label className="ml-4 text-xl">
-            <input
-              type="radio"
-              name="standard"
-              value="business"
-              checked={formData.standard === "business"}
-              onChange={handleChange}
-            />
+            <input type="radio" name="standard" value="business" checked={formData.standard === 'business'} onChange={handleChange} />
             Business
           </label>
         </div>
 
         <div>
-          <div className="bg-primary my-2 border-2 border-solid rounded-full px-4 py-1 text-main text-xl w-full">
-            <button
-              className="text-main text-lg w-full flex justify-center items-center gap-2"
-              type="submit"
-            >
-              {loading ? (
-                <Loader />
-              ) : isEditMode ? (
-                "Update Vehicle"
-              ) : (
-                "Register Vehicle"
-              )}
-            </button>
-          </div>
+          <Button type="submit" className="w-full" isLoading={loading}>
+            {isEditMode ? 'Update Vehicle' : 'Register Vehicle'}
+          </Button>
         </div>
       </form>
     </div>
