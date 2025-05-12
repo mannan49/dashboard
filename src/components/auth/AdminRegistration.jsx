@@ -36,6 +36,7 @@ function AdminRegistration() {
           email: formData.email,
           password: formData.password,
           company: formData.company,
+          role: formData.role,
         }),
       });
       const data = await response.json();
@@ -85,8 +86,8 @@ function AdminRegistration() {
             value={formData.role}
             onChange={handleChange}
           >
-            <option value="option1">Admin</option>
-            <option value="option2">User</option>
+            <option value="admin">Admin</option>
+            <option value="superadmin">Super Admin</option>
           </select>
         </div>
 
