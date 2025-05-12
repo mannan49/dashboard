@@ -13,12 +13,11 @@ export const loginAdmin = async (adminData) => {
         body: JSON.stringify(adminData),
       });
   
-      const data = await response.json(); // Parse the JSON directly
-      console.log("Parsed JSON data:", data);
+      const data = await response.json();
   
       if (response.ok && data.token) {
-        localStorage.setItem("token", data.token); // Store the token
-        return { success: true, data }; // Return the success flag and data
+        localStorage.setItem("token", data.token);
+        return { success: true, data };
       } else {
         console.error("Login failed", data.message);
         return { success: false, message: data.message };

@@ -41,7 +41,7 @@ const BusesPage = () => {
       toast.error('Please select a driver!');
       return;
     }
-    const updatedData = { ...selectedBus, driverId: selectedDriverId };
+    const updatedData = { driverId: selectedDriverId };
 
     try {
       await Promise.all([
@@ -84,7 +84,8 @@ const BusesPage = () => {
           .filter(bus => {
             const busDateTime = new Date(bus?.date);
             const now = new Date();
-            return busDateTime > now;
+            const nowUtc = new Date(now.toISOString());
+            return busDateTime > nowUtc;
           })
           .map(bus => (
             <div key={bus._id} className="bg-white rounded-xl shadow-lg p-6 transition transform hover:scale-105 hover:shadow-xl">

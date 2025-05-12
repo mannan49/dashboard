@@ -76,7 +76,7 @@ const DriversAssignedBuses = () => {
                             {formatDateToDayMonth(bus?.date)} {formatTime(bus?.departureTime)}
                           </p>
                           <p className="app-btn text-sm">
-                            {bus?.route?.stops?.length === 0 ? 'Non Stop' : `Stops: ${bus?.route?.stops?.length}`}
+                            {bus?.route?.stops?.length === 0 ? 'Non Stop' : `Stops: ${bus?.route?.stops?.length - 2}`}
                           </p>
                         </div>
                       </div>

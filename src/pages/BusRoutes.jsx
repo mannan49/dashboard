@@ -28,7 +28,6 @@ const BusRoutes = () => {
 
       const data = await response.json();
       setRoutes(data);
-      console.log("DATA", routes);
     } catch (error) {
       console.error("Error fetching routes:", error);
     }

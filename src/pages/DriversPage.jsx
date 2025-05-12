@@ -25,7 +25,6 @@ const DriversPage = () => {
 
       const data = await response.json();
       setDrivers(data);
-      console.log("DATA", drivers);
     } catch (error) {
       console.error("Error fetching drivers:", error);
     }

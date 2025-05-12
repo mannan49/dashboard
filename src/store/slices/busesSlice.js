@@ -35,7 +35,6 @@ export const updateBus = createAsyncThunk('buses/updateBus', async ({ busId, dat
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
     });
-    console.log("UPDATE RESPONSE", response)
     return response.data;
 });
 
@@ -52,7 +51,6 @@ const busesSlice = createSlice({
             })
             .addCase(fetchAdminBuses.fulfilled, (state, action) => {
                 state.status = RequestState.SUCCEEDED;
-                console.log("Bus Get Action", action)
                 state.data = action.payload;
             })
             .addCase(fetchAdminBuses.rejected, (state) => {
@@ -60,7 +58,6 @@ const busesSlice = createSlice({
             })
             // Delete bus
             .addCase(deleteBus.fulfilled, (state, action) => {
-                console.log("Bus DELETE Action", action);
                 state.status = RequestState.SUCCEEDED;
                 state.data = state.data.filter((bus) => bus._id !== action.payload);
                 toast.success('Bus deleted successfully');

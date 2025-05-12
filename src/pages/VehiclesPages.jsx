@@ -23,7 +23,6 @@ const VehiclesPage = () => {
 
       const data = await response.json();
       setVehicles(data);
-      console.log('DATA', vehicles);
     } catch (error) {
       console.error('Error fetching routes:', error);
     }

@@ -22,9 +22,7 @@ const App = () => {
         }
 
         const data = await response.json();
-        // Filter the data to get only the admins
         const adminBuses = data.filter((admin) => admin.role === "admin");
-        console.log("Admins", adminBuses);
         setAdmins(adminBuses);
       } catch (error) {
         console.error("Error fetching data:", error);

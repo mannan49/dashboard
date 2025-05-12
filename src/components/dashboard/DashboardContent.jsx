@@ -15,7 +15,6 @@ const DashboardContent = () => {
   }
 
   if (role === "admin") {
-    console.log("In admin Dashboard");
     return <AdminDashboard />;
   } else if (role === "superadmin") {
     return <SuperAdminDashboard />;

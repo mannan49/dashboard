@@ -6,34 +6,28 @@ export function formatPhoneNumber(phoneNumber) {
 }
 
 export function getOrdinal(number) {
-  const suffixes = ["th", "st", "nd", "rd"];
+  const suffixes = ['th', 'st', 'nd', 'rd'];
   const value = number % 100;
   return number + (suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0]);
 }
 
+export function formatDate(utcDateString) {
+  if (!utcDateString) return '';
 
-export function formatDate(dateString) {
-  const date = new Date(dateString);
+  const localDate = new Date(utcDateString);
 
-  // Define the months
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  // Get day, month, and year
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
+  const day = localDate.getDate();
+  const month = months[localDate.getMonth()];
+  const year = localDate.getFullYear();
 
-  // Get ordinal suffix
-  const ordinalSuffix = (day) => {
-    if (day % 10 === 1 && day !== 11) return "st";
-    if (day % 10 === 2 && day !== 12) return "nd";
-    if (day % 10 === 3 && day !== 13) return "rd";
-    return "th";
+  const ordinalSuffix = d => {
+    if (d % 10 === 1 && d !== 11) return 'st';
+    if (d % 10 === 2 && d !== 12) return 'nd';
+    if (d % 10 === 3 && d !== 13) return 'rd';
+    return 'th';
   };
 
-  // Format the date
   return `${day}${ordinalSuffix(day)} ${month}, ${year}`;
 }

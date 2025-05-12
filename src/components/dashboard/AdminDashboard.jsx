@@ -33,17 +33,6 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const buses = useSelector((state) => state.buses.data);
-  const payments = useSelector((state) => state.payments.data);
-  const vehicles = useSelector((state) => state.vehicles.data);
-  const drivers = useSelector((state) => state.drivers.data);
-  const busesToday = buses.filter(
-    (bus) => bus.date.split("T")[0] === new Date().toISOString().split("T")[0]
-  );
-  console.log("DATA PLAYING", analyzeBusRoutes(buses));
-  useEffect(() => {
-    console.log("PAYJMENT", payments);
-  }, []);
   return (
     <div className="content lg:px-00113164234">
       <div className="m-auto lg:px-8">
